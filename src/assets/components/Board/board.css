@@ -1,0 +1,28 @@
+.dad-container {
+  overflow: hidden;
+  margin-right: 45em;
+}
+
+.main-container {
+  display: grid;
+  border-radius: 5px;
+  grid-template-columns: repeat(8, 1fr);
+  height: 400px;
+  width: 400px;
+  margin-bottom: 2em;
+  overflow: hidden;
+}
+
+.files:nth-of-type(odd) .square:nth-of-type(even) {
+  background-color: #7e7e7e;
+}
+
+.files:nth-of-type(even) .square:nth-of-type(odd) {
+  background-color: #7e7e7e;
+}
+
+.square {
+  background-color: white;
+  width: 50px;
+  height: 50px;
+}

@@ -1,0 +1,47 @@
+.menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #161616;
+  padding: 0px 20px;
+  margin-left: 2em;
+}
+
+.menu-left {
+  font-size: 1.9em;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+}
+
+.menu a {
+  color: white;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+.menu a:last-child {
+  margin-right: 0;
+}
+
+.icon {
+  margin-right: 5px;
+}
+
+.icon:hover {
+  color: #007bff;
+}
+
+.left-item-second .icon {
+  font-size: 26px;
+  margin-left: 4px;
+  margin-right: 10px;
+}
+
+.left-item-second {
+  font-size: 1em;
+}
+
+.left-item-third .icon {
+  margin-right: -4px;
+}

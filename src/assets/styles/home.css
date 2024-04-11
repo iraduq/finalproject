@@ -1,0 +1,57 @@
+.mainpage-container {
+  display: flex;
+  flex-direction: column;
+}
+.content-container {
+  display: flex;
+  padding-bottom: 20px;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+.tabla {
+  margin-right: 2em;
+}
+
+.main-chessboard-table {
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-main-table {
+  width: 100%;
+  height: auto;
+}
+
+.menu-button-container {
+  margin: 0 auto;
+}
+
+.menu-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.98);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/*Pentru telefoane*/
+@media only screen and (max-width: 481px) {
+}
+
+/*Pentru tablete*/
+@media only screen and (min-width: 769px) {
+}
+
+/*Pentru Laptop*/
+@media only screen and (max-width: 1026px) {
+}

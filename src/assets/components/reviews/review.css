@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css);
+
+.grid-container,
+.header,
+.left,
+.middle,
+.right,
+.footer,
+.login-wrap {
+  background-color: transparent;
+  position: relative;
+}
+
+figure.comentariu {
+  font-family: 'Oswald', sans-serif;
+  position: relative;
+  overflow: hidden;
+  margin: 16px;
+  min-width: 230px;
+  max-width: 325px;
+  width: 100%;
+  color: #000000;
+  text-align: center;
+  font-size: 16px;
+  padding: 30px;
+  background-image: radial-gradient(circle, rgba(5, 5, 5, 0.2) 0%, rgb(30, 30, 30) 100%);
+
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+figure.comentariu *,
+figure.comentariu *:before,
+figure.comentariu *:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+figure.comentariu figcaption {
+  width: 100%;
+}
+figure.comentariu h2,
+figure.comentariu h4,
+figure.comentariu blockquote {
+  margin: 0;
+}
+figure.comentariu h2,
+figure.comentariu h4 {
+  font-weight: 300;
+}
+figure.comentariu h2 {
+  color: #ffffff;
+  font-size: 1.2em;
+}
+figure.comentariu h4 {
+  color: #a6a6a6;
+}
+figure.comentariu blockquote {
+  font-size: 1em;
+  padding: 45px 20px 40px 50px;
+  margin-top: 30px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: inset -1.4px -1.4px 2px rgba(0, 0, 0, 0.3);
+  text-align: left;
+  position: relative;
+}
+figure.comentariu blockquote:before {
+  font-family: 'FontAwesome';
+  content: '\201C';
+  position: absolute;
+  font-size: 70px;
+  opacity: 0.25;
+  font-style: normal;
+  top: 0px;
+  left: 20px;
+}
+figure.comentariu .profile {
+  width: 100px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.4);
+  margin-bottom: 10px;
+  border: solid 5px rgba(218, 211, 211, 0.753);
+}
+
+.right {
+  font-family: 'Oswald', sans-serif;
+  color: var(--greytext);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.profiles-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.comentariu {
+  flex: 0 0 calc(33.33% - 20px);
+  margin: 10px;
+  max-width: calc(33.33% - 20px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.profiles-container {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+/*Pentru telefoane*/
+@media only screen and (max-width: 550px) {
+  figure.comentariu {
+    font-family: 'Oswald', sans-serif;
+    position: relative;
+    overflow: hidden;
+    margin: 16px;
+    min-width: 330px;
+    max-width: 325px;
+    width: 100%;
+    color: #000000;
+    text-align: center;
+    font-size: 16px;
+    padding: 30px;
+    background-image: radial-gradient(circle, rgba(5, 5, 5, 0.2) 0%, rgb(30, 30, 30) 100%);
+
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+}
+
+/*Pentru tablete*/
+@media only screen and (min-width: 769px) {
+  figure.comentariu {
+    font-family: 'Oswald', sans-serif;
+    position: relative;
+    overflow: hidden;
+    margin: 16px;
+    min-width: 330px;
+    max-width: 325px;
+    width: 100%;
+    color: #000000;
+    text-align: center;
+    font-size: 16px;
+    padding: 30px;
+    background-image: radial-gradient(circle, rgba(5, 5, 5, 0.2) 0%, rgb(30, 30, 30) 100%);
+
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+}
+
+/*Pentru Laptop*/
+@media only screen and (max-width: 1026px) {
+}

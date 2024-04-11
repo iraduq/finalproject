@@ -1,0 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+:root {
+  --font-family: "Poppins", sans-serif;
+  --primary-color: #149ae2;
+  --secondary-color: rgb(58, 54, 56);
+  --secondary-color-hover: rgb(29, 25, 27);
+  --text-color: white;
+  --success-color: rgb(2, 182, 2);
+}
+
+.container-container-form {
+  font-size: 2vw;
+  margin: 10% auto;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  max-width: 850px;
+  text-align: center;
+  background-color: var(--primary-color);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.container-container-form h3 {
+  font-weight: 800;
+}
+.input-field,
+.textarea-field,
+.submit-button {
+  margin-bottom: 8px;
+}
+
+.input-field {
+  width: 30vw;
+  height: 7vw;
+  max-height: 6vh;
+  color: black;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.input-field::placeholder {
+  color: grey;
+  text-align: center;
+}
+
+.textarea-field {
+  height: 80px;
+}
+
+.submit-button {
+  height: 36px;
+  font-size: 14px;
+}
+
+input::placeholder {
+  content: attr(placeholder) "\00a0" attr(data-icon);
+  font-family: FontAwesome, sans-serif;
+}
+.submit-button {
+  border: 1px solid white;
+  width: 30%;
+  border-radius: 13px;
+}
