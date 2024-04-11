@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import Background from "../constants/background/background.js";
+import { Move } from "chess.js";
 import "../styles/train.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -36,61 +37,77 @@ const pieceIcons = {
 function ChessComponent() {
   const initialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [game, setGame] = useState(new Chess(initialFen));
-  const [lastMove, setLastMove] = useState(null);
+  const [lastMove, setLastMove] = useState<React.ReactElement | null>(null);
 
+  const resetGame = () => {
+    setGame(new Chess(initialFen));
+    setLastMove(null);
+  };
   useEffect(() => {
+    function makeStockfishMove() {
+      stockfish.postMessage("position fen " + game.fen());
+      stockfish.postMessage("go depth 1");
+    }
+
     if (game.turn() === "b" && !game.isGameOver()) {
       makeStockfishMove();
     }
+
+    stockfish.onmessage = async function (event) {
+      const response = event.data;
+      if (response.startsWith("bestmove")) {
+        const move = response.split(" ")[1];
+        await delay(() => {
+          const moveResult = game.move(move);
+          if (moveResult) {
+            setGame(new Chess(game.fen()));
+            updateMoveHistory(moveResult);
+          }
+        }, 1000);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
 
-  function makeStockfishMove() {
-    stockfish.postMessage("position fen " + game.fen());
-    stockfish.postMessage("go depth 1");
-  }
-
-  stockfish.onmessage = async function (event) {
-    const response = event.data;
-    if (response.startsWith("bestmove")) {
-      const move = response.split(" ")[1];
-      await delay(() => {
-        const moveResult = game.move(move);
-        if (moveResult) {
-          setGame(new Chess(game.fen()));
-          updateMoveHistory(moveResult);
-        }
-      }, 1000);
-    }
-  };
-
-  function delay(fn, delay) {
+  function delay(fn: () => void, duration: number): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
         fn();
         resolve();
-      }, delay);
+      }, duration);
     });
   }
+  const handleMove = (
+    sourceSquare: string,
+    targetSquare: string,
+    piece: string
+  ): boolean => {
+    if (game.turn() !== "w") {
+      return false;
+    }
 
-  const handleMove = (source, target, piece) => {
+    const initialGame = new Chess(game.fen());
     const move = game.move({
-      from: source,
-      to: target,
+      from: sourceSquare,
+      to: targetSquare,
       promotion: piece.slice(-1).toLowerCase(),
     });
-    if (!move) {
-      return;
+
+    if (move) {
+      setGame(new Chess(game.fen()));
+      updateMoveHistory(move);
+      return true;
+    } else {
+      setGame(initialGame);
+      return false;
     }
-    setGame(new Chess(game.fen()));
-    updateMoveHistory(move);
+
+    return false;
   };
 
-  const resetGame = () => {
-    setGame(new Chess());
-    setLastMove(null);
-  };
+  const updateMoveHistory = (move: Move | null) => {
+    if (!move) return;
 
-  const updateMoveHistory = (move) => {
     const pieceColor = game.turn() === "w" ? "black" : "white";
     const notation = (
       <div>
@@ -180,13 +197,7 @@ function ChessComponent() {
             </div>
           )}
           <div className="chessboard-wrapper">
-            <Chessboard
-              position={game.fen()}
-              onPieceDrop={handleMove}
-              allowDrag={({ piece }) =>
-                game.turn() === "w" && piece.startsWith("w")
-              }
-            />
+            <Chessboard position={game.fen()} onPieceDrop={handleMove} />
           </div>
         </div>
         <div className="right-content">
