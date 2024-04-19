@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Oswald');
+@import url("https://fonts.googleapis.com/css?family=Oswald");
 .container-online {
   position: relative;
 }
@@ -10,7 +10,7 @@
 
 .header-online {
   margin-bottom: 20px;
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   font-weight: 700;
   color: white;
   font-size: 2em;
@@ -51,7 +51,7 @@
   align-items: center;
   flex-direction: column;
   background-color: rgba(181, 136, 99, 255);
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   font-weight: 900;
   border: 1px solid white;
 }
@@ -118,4 +118,32 @@
     margin-bottom: 15%;
     margin-left: -10%;
   }
+}
+
+.right-area-online {
+  flex: 0.5;
+}
+
+.game-info-container {
+  height: 50vh;
+  font-weight: 900;
+  font-size: 1.5em;
+  margin: 0 auto;
+  background: rgba(181, 136, 99, 255);
+  border: 1px solid #ccc;
+  padding: 20px;
+  text-align: center;
+}
+
+.game-info-container h2 {
+  margin-top: 0;
+}
+
+.game-info-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.game-info-container li {
+  font-size: 1.2em;
 }

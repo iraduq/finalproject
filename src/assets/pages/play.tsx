@@ -8,6 +8,18 @@ import "../styles/play.css";
 import { Chess } from "chess.js";
 import useWebSocket from "react-use-websocket";
 
+import {
+  faChessPawn,
+  faChessKing,
+  faExclamationCircle,
+  faSkullCrossbones,
+  faHandshake,
+  faTrophy,
+  faCheck,
+  faTimes,
+  faChartBar,
+} from "@fortawesome/free-solid-svg-icons";
+
 const OnlineGame = () => {
   const [game, setGame] = useState(new Chess());
   const [isProcessingMove, setIsProcessingMove] = useState(false);
@@ -46,6 +58,7 @@ const OnlineGame = () => {
       return true;
     }
 
+    setGame(new Chess(game.fen()));
     return false;
   };
 
@@ -128,6 +141,56 @@ const OnlineGame = () => {
             {isProcessingMove && (
               <div className="loading-indicator">Processing...</div>
             )}
+          </div>
+        </div>
+        <div className="right-area-online">
+          <div className="game-info-container">
+            <FontAwesomeIcon icon={faChartBar} size="2x" />
+            <h2>Game Information</h2>
+            <ul>
+              <li>
+                <span>
+                  <FontAwesomeIcon icon={faChessKing} /> Current Turn:{" "}
+                  {game.turn() === "w" ? (
+                    <FontAwesomeIcon icon={faChessPawn} color="white" />
+                  ) : (
+                    <FontAwesomeIcon icon={faChessPawn} color="black" />
+                  )}
+                </span>
+              </li>
+              <li>
+                <FontAwesomeIcon icon={faExclamationCircle} /> Check:{" "}
+                {game.isCheck() ? (
+                  <FontAwesomeIcon icon={faCheck} />
+                ) : (
+                  <FontAwesomeIcon icon={faTimes} />
+                )}
+              </li>
+              <li>
+                <FontAwesomeIcon icon={faSkullCrossbones} /> Checkmate:{" "}
+                {game.isCheckmate() ? (
+                  <FontAwesomeIcon icon={faCheck} />
+                ) : (
+                  <FontAwesomeIcon icon={faTimes} />
+                )}
+              </li>
+              <li>
+                <FontAwesomeIcon icon={faHandshake} /> Draw:{" "}
+                {game.isDraw() ? (
+                  <FontAwesomeIcon icon={faCheck} />
+                ) : (
+                  <FontAwesomeIcon icon={faTimes} />
+                )}
+              </li>
+              <li>
+                <FontAwesomeIcon icon={faTrophy} /> Game Over:{" "}
+                {game.isGameOver() ? (
+                  <FontAwesomeIcon icon={faCheck} />
+                ) : (
+                  <FontAwesomeIcon icon={faTimes} />
+                )}
+              </li>
+            </ul>
           </div>
         </div>
       </div>
