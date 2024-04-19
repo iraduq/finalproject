@@ -59,41 +59,43 @@ const ContactForm: React.FC = () => {
   };
 
   return (
-    <form
-      id="form"
-      className="container-container-form"
-      onSubmit={handleSubmit}
-    >
-      <Background></Background>
-      <Background></Background>
-      <h3>
-        <FontAwesomeIcon icon={faEnvelope} /> CONTACT
-      </h3>
-      <input
-        className="input-field"
-        type="text"
-        placeholder="&#xf0c0; Name"
-        name="name"
-      />
+    <div className="contact-div">
+      <form
+        id="form"
+        className="container-container-form"
+        onSubmit={handleSubmit}
+      >
+        <Background></Background>
+        <Background></Background>
+        <h3>
+          <FontAwesomeIcon icon={faEnvelope} /> CONTACT
+        </h3>
+        <input
+          className="input-field"
+          type="text"
+          placeholder="&#xf0c0; Name"
+          name="name"
+        />
 
-      <Background></Background>
-      <input
-        className="input-field"
-        type="text"
-        placeholder="&#xf0e0; Email"
-        name="email"
-      />
-      <input
-        className="input-field"
-        type="text"
-        placeholder="&#xf0f6; Message"
-        name="message"
-      />
+        <Background></Background>
+        <input
+          className="input-field"
+          type="text"
+          placeholder="&#xf0e0; Email"
+          name="email"
+        />
+        <input
+          className="input-field"
+          type="text"
+          placeholder="&#xf0f6; Message"
+          name="message"
+        />
 
-      <button className="submit-button" type="submit">
-        <FontAwesomeIcon icon={faPaperPlane} /> Send
-      </button>
-    </form>
+        <button className="submit-button" type="submit">
+          <FontAwesomeIcon icon={faPaperPlane} /> Send
+        </button>
+      </form>
+    </div>
   );
 };
 

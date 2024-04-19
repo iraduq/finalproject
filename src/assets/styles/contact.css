@@ -18,9 +18,15 @@
   justify-content: center;
   align-items: center;
   width: 90%;
-  max-width: 850px;
+  max-width: 600px;
   text-align: center;
-  background-color: var(--primary-color);
+  background: rgb(2, 0, 36);
+  background: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(5, 5, 46, 1) 29%,
+    rgba(5, 4, 77, 1) 85%
+  );
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -58,7 +64,7 @@
 }
 
 input::placeholder {
-  content: attr(placeholder) "\00a0" attr(data-icon);
+  content: attr(placeholder) "\00a0"attr(data-icon);
   font-family: FontAwesome, sans-serif;
 }
 .submit-button {

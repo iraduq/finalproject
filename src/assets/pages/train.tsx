@@ -22,6 +22,7 @@ import {
   faShieldAlt,
   faHouse,
 } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 const stockfish = new Worker("./node_modules/stockfish.js/stockfish.js");
 
@@ -39,35 +40,50 @@ function ChessComponent() {
   const [game, setGame] = useState(new Chess(initialFen));
   const [lastMove, setLastMove] = useState<React.ReactElement | null>(null);
 
-  const resetGame = () => {
-    setGame(new Chess(initialFen));
-    setLastMove(null);
-  };
   useEffect(() => {
-    function makeStockfishMove() {
-      stockfish.postMessage("position fen " + game.fen());
-      stockfish.postMessage("go depth 1");
-    }
+    playGameStartSound();
+  }, []);
 
-    if (game.turn() === "b" && !game.isGameOver()) {
+  useEffect(() => {
+    if (game.isGameOver()) {
+      playGameEndSound();
+    } else if (game.turn() === "b" && !game.isGameOver()) {
       makeStockfishMove();
     }
-
-    stockfish.onmessage = async function (event) {
-      const response = event.data;
-      if (response.startsWith("bestmove")) {
-        const move = response.split(" ")[1];
-        await delay(() => {
-          const moveResult = game.move(move);
-          if (moveResult) {
-            setGame(new Chess(game.fen()));
-            updateMoveHistory(moveResult);
-          }
-        }, 1000);
-      }
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
+
+  function makeStockfishMove() {
+    stockfish.postMessage("position fen " + game.fen());
+    stockfish.postMessage("go depth 1");
+  }
+
+  stockfish.onmessage = async function (event) {
+    const response = event.data;
+    if (response.startsWith("bestmove")) {
+      const move = response.split(" ")[1];
+      console.log(move);
+      await delay(() => {
+        const moveResult = game.move(move);
+        if (moveResult) {
+          setGame(new Chess(game.fen()));
+          updateMoveHistory(moveResult);
+          const isCapture = moveResult.captured !== undefined;
+          if (isCapture) {
+            const captureSound = new Audio(
+              "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3"
+            );
+            captureSound.play();
+          } else {
+            const moveSound = new Audio(
+              "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-opponent.mp3"
+            );
+            moveSound.play();
+          }
+        }
+      }, 1000);
+    }
+  };
 
   function delay(fn: () => void, duration: number): Promise<void> {
     return new Promise((resolve) => {
@@ -77,6 +93,7 @@ function ChessComponent() {
       }, duration);
     });
   }
+
   const handleMove = (
     sourceSquare: string,
     targetSquare: string,
@@ -87,22 +104,35 @@ function ChessComponent() {
     }
 
     const initialGame = new Chess(game.fen());
-    const move = game.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: piece.slice(-1).toLowerCase(),
-    });
+    try {
+      const move = game.move({
+        from: sourceSquare,
+        to: targetSquare,
+        promotion: piece.slice(-1).toLowerCase(),
+      });
 
-    if (move) {
-      setGame(new Chess(game.fen()));
-      updateMoveHistory(move);
-      return true;
-    } else {
-      setGame(initialGame);
+      if (move) {
+        setGame(new Chess(game.fen()));
+        updateMoveHistory(move);
+        if (move.flags.includes("c")) {
+          const captureSound = new Audio(
+            "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3"
+          );
+          captureSound.play();
+        } else {
+          const moveSound = new Audio(
+            "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3"
+          );
+          moveSound.play();
+        }
+        return true;
+      } else {
+        setGame(initialGame);
+        return false;
+      }
+    } catch (error) {
       return false;
     }
-
-    return false;
   };
 
   const updateMoveHistory = (move: Move | null) => {
@@ -118,14 +148,44 @@ function ChessComponent() {
         </p>
       </div>
     );
+
     setLastMove(notation);
+  };
+
+  const playGameStartSound = () => {
+    const gameStartSound = new Audio(
+      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3"
+    );
+    gameStartSound.play().catch((error) => {
+      console.error("Error playing game start sound:", error);
+    });
+  };
+
+  useEffect(() => {
+    playGameStartSound();
+  }, []);
+
+  const playGameEndSound = () => {
+    const gameEndSound = new Audio(
+      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-end.mp3"
+    );
+    gameEndSound.play().catch((error) => {
+      console.error("Error playing game end sound:", error);
+    });
+  };
+
+  const resetGame = () => {
+    setGame(new Chess(initialFen));
+    setLastMove(null);
   };
 
   return (
     <div className="chess-wrapper">
       <div className="header-online">
-        <FontAwesomeIcon icon={faHouse} />
-        <span className="icon-spacing">HOME</span>
+        <Link to="/main">
+          <FontAwesomeIcon icon={faHouse} />
+          <span className="icon-spacing">HOME</span>
+        </Link>
       </div>
       <Background />
       <div className="chess-container">

@@ -33,12 +33,12 @@ const LoginForm = () => {
       if (loginInput.email !== "" && loginInput.password !== "") {
         console.log(loginInput.email);
         console.log(loginInput.password);
-        const url = `http://192.168.0.164:8000/login`;
+        const url = `http://172.16.1.39:8000/login`;
         const response = await axios.post(url, {
           email: loginInput.email,
           password: loginInput.password,
         });
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.access_token);
         navigate("/main");
       } else {
         throw new Error("Please provide valid input");
@@ -58,7 +58,7 @@ const LoginForm = () => {
         registerInput.repeatPassword !== "" &&
         registerInput.password === registerInput.repeatPassword
       ) {
-        const url = `http://192.168.0.164:8000/create_user`;
+        const url = `http://172.16.1.39:8000/create_user`;
         const response = await axios.post(url, {
           username: registerInput.username,
           password: registerInput.password,
@@ -66,7 +66,7 @@ const LoginForm = () => {
           email: registerInput.email,
           registration_date: new Date().toISOString(),
         });
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.access_token);
         navigate("/main");
       } else {
         throw new Error("Please provide valid input");
