@@ -7,6 +7,8 @@ import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import "../styles/play.css";
 import { Chess } from "chess.js";
 import useWebSocket from "react-use-websocket";
+import gameStartSound from "../constants/sounds/game-start.mp3";
+import moveSelf from "../constants/sounds/move-self.mp3";
 
 import {
   faChessPawn,
@@ -21,6 +23,18 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const OnlineGame = () => {
+  useEffect(() => {
+    const audio = new Audio(gameStartSound);
+    audio.volume = 1;
+    audio.play();
+  }, []);
+
+  const playMoveSelfSound = () => {
+    const audio = new Audio(moveSelf);
+    audio.volume = 1;
+    audio.play();
+  };
+
   const [game, setGame] = useState(new Chess());
   const [isProcessingMove, setIsProcessingMove] = useState(false);
   const [boardOrientation, setBoardOrientation] = useState<
@@ -107,6 +121,7 @@ const OnlineGame = () => {
         if (receivedData.action === "player_move") {
           const updatedFen = receivedData.fen;
           setGame(new Chess(updatedFen));
+          playMoveSelfSound();
         }
       } catch (error) {
         console.error("Error parsing JSON:", error);
