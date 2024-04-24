@@ -13,6 +13,7 @@ import CustomerReview from "../src/assets/pages/faq.tsx";
 import AboutComponent from "../src/assets/pages/about.tsx";
 import OnlineGame from "../src/assets/pages/play";
 import ContactPage from "../src/assets/pages/contact.tsx";
+import PuzzleGame from "./assets/pages/puzzle.tsx";
 
 const App: React.FC = () => {
   const isAuthenticated = () => {
@@ -65,6 +66,7 @@ const App: React.FC = () => {
           element={<ProtectedRoute element={<OnlineGame />} path="/online" />}
         />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/puzzle" element={<PuzzleGame />} />
       </Routes>
     </Router>
   );

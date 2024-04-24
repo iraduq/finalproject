@@ -65,8 +65,6 @@ const ContactForm: React.FC = () => {
         className="container-container-form"
         onSubmit={handleSubmit}
       >
-        <Background></Background>
-        <Background></Background>
         <h3>
           <FontAwesomeIcon icon={faEnvelope} /> CONTACT
         </h3>

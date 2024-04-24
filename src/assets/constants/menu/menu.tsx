@@ -33,13 +33,13 @@ const Menu: React.FC = () => {
         <a href="/train" className="left-item-third">
           <FontAwesomeIcon icon={faDumbbell} className="icon" /> Train
         </a>
+        <a href="/puzzle" className="left-item">
+          <FontAwesomeIcon icon={faTrophy} className="icon" />
+          Puzzle
+        </a>
         <a href="" className="left-item">
           <FontAwesomeIcon icon={faUserGroup} className="icon" />
           Social
-        </a>
-        <a href="" className="left-item">
-          <FontAwesomeIcon icon={faTrophy} className="icon" />
-          Achivs
         </a>
         <a href="/tutorial" className="left-item">
           <FontAwesomeIcon icon={faQuestionCircle} className="icon" />

@@ -77,7 +77,7 @@ const OnlineGame = () => {
   };
 
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://172.16.1.39:8000/ws/${localStorage.getItem("token")}`,
+    `ws://192.168.38.121:8000/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),

@@ -23,6 +23,8 @@ import {
   faHouse,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const stockfish = new Worker("./node_modules/stockfish.js/stockfish.js");
 
@@ -131,6 +133,7 @@ function ChessComponent() {
         return false;
       }
     } catch (error) {
+      toast.error("Illegal move!");
       return false;
     }
   };
@@ -189,6 +192,7 @@ function ChessComponent() {
       </div>
       <Background />
       <div className="chess-container">
+        <ToastContainer />
         <div className="left-content">
           <ul>
             <li className="icon-below">
