@@ -11,7 +11,7 @@
 
 .container-container-form {
   font-size: 2vw;
-  margin: 10% auto;
+  margin: 2% auto;
   color: var(--text-color);
   display: flex;
   flex-direction: column;
@@ -20,16 +20,16 @@
   width: 90%;
   max-width: 600px;
   text-align: center;
-  background: rgb(2, 0, 36);
+  background: rgb(0, 0, 0);
   background: linear-gradient(
-    90deg,
-    rgba(2, 0, 36, 1) 0%,
-    rgba(5, 5, 46, 1) 29%,
-    rgba(5, 4, 77, 1) 85%
+    231deg,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(42, 41, 41, 0.8435749299719888) 0%,
+    rgba(0, 0, 0, 0.8435749299719888) 100%
   );
-  padding: 20px;
+  padding: 3vh;
   border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 5px rgba(50, 50, 50, 1);
 }
 
 .container-container-form h3 {
@@ -46,7 +46,7 @@
 
 .input-field {
   width: calc(100% - 40px);
-  height: 40px;
+  height: 20%;
   color: black;
   border-radius: 18px;
   text-align: center;
@@ -59,7 +59,7 @@
 }
 
 .textarea-field {
-  height: 80px;
+  height: 50%;
 }
 
 .submit-button {
@@ -68,14 +68,8 @@
   width: 40%;
   border-radius: 20px;
   border: none;
-  background-color: var(--primary-color);
-  color: var(--text-color);
   cursor: pointer;
   transition: background-color 0.3s ease;
-}
-
-.submit-button:hover {
-  background-color: var(--secondary-color-hover);
 }
 
 input::placeholder {
@@ -95,10 +89,60 @@ input::placeholder {
 }
 
 .submit-button {
-  background: linear-gradient(to right, var(--primary-color), #007bff);
+  background: linear-gradient(to right, #333, #272727);
 }
 .input-field:hover,
 .textarea-field:hover {
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   transition: box-shadow 0.3s ease;
+}
+
+.typed-message {
+  margin-top: 2%;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 2em;
+  height: 100px;
+  margin: 0 auto;
+  display: flex;
+  width: 90%;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+@media only screen and (max-width: 768px) {
+  .container-container-form {
+    font-size: 2em;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .container-container-form {
+    font-size: 4vw;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  .container-container-form {
+    font-size: 5vw;
+  }
+}
+
+@media only screen and (max-width: 320px) {
+  .container-container-form {
+    font-size: 3vw;
+  }
+  .typed-message {
+    font-size: 0.5em !important;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .typed-message {
+    font-size: 1em;
+  }
+}
+
+.typed-cursor {
+  display: none;
 }
