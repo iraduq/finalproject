@@ -16,6 +16,15 @@ const PuzzleGame = () => {
   const [currentPlayer, setCurrentPlayer] = useState<"w" | "b">("b");
   const [orientation, setOrientation] = useState<"white" | "black">("black");
 
+  const playIllegalMoveSound = () => {
+    const illegalMoveSound = new Audio(
+      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/illegal.mp3"
+    );
+    illegalMoveSound.play().catch((error) => {
+      console.error("Error playing illegal move sound:", error);
+    });
+  };
+
   useEffect(() => {
     const fetchPuzzleData = async () => {
       try {
@@ -60,9 +69,9 @@ const PuzzleGame = () => {
     }
   }, [currentPlayer]);
 
-  const handleMove = (sourceSquare: string, targetSquare: string) => {
-    if (!game) return;
-    if (game.turn() !== currentPlayer) return;
+  const handleMove = (sourceSquare: string, targetSquare: string): boolean => {
+    if (!game) return false;
+    if (game.turn() !== currentPlayer) return false;
 
     const previousFen = game.fen();
 
@@ -106,16 +115,22 @@ const PuzzleGame = () => {
               toast.success("Congratulations! You've completed the puzzle!");
             }
           }
+
+          return true;
         } else {
+          playIllegalMoveSound();
           toast.error("Wrong Move!");
           game.load(previousFen);
           setFen(previousFen);
+          return false;
         }
       } else {
         throw new Error("Invalid move");
       }
     } catch (error) {
+      playIllegalMoveSound();
       toast.error("Illegal move!");
+      return false;
     }
   };
 

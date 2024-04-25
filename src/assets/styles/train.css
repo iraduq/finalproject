@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Oswald&display=swap");
 
 * {
   margin: 0;
@@ -40,7 +40,7 @@
 .last-move p {
   background: rgba(181, 136, 99, 255);
   text-align: center;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
   font-size: 1.3em;
   font-weight: 900;
 }
@@ -67,7 +67,7 @@
   border: 5px solid rgba(84, 84, 90, 0.4);
   font-size: 1.3em;
   font-weight: bold;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
   height: auto;
   width: auto;
   margin-top: auto;
@@ -83,7 +83,7 @@
   border: 5px solid rgba(84, 84, 90, 0.4);
   font-size: 1.3em;
   font-weight: bold;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
   height: auto;
   width: auto;
   margin-top: auto;
@@ -117,7 +117,7 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   text-align: justify;
 }
 
@@ -289,4 +289,48 @@ h2 {
   .icon-below {
     font-size: 7vmax;
   }
+}
+
+.right-content {
+  background-color: rgba(181, 136, 99, 255);
+  padding: 20px;
+  border: 5px solid rgba(84, 84, 90, 0.4);
+  font-size: 1.3em;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.difficulty-buttons {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.difficulty-buttons button {
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.difficulty-buttons button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-buttons h2 {
+  font-size: 2em;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.difficulty-buttons button {
+  font-size: 1.5em;
+  font-weight: 700;
+  border: 3px solid white;
+  border-radius: 50px;
 }

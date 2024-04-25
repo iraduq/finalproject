@@ -5,6 +5,7 @@ import Background from "../constants/background/background.js";
 import { Move } from "chess.js";
 import "../styles/train.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {
   faChessPawn,
   faChessRook,
@@ -21,6 +22,7 @@ import {
   faTimes,
   faShieldAlt,
   faHouse,
+  faRedo,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -42,6 +44,22 @@ function ChessComponent() {
   const [game, setGame] = useState(new Chess(initialFen));
   const [lastMove, setLastMove] = useState<React.ReactElement | null>(null);
 
+  const playIllegalMoveSound = () => {
+    const illegalMoveSound = new Audio(
+      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/illegal.mp3"
+    );
+    illegalMoveSound.play().catch((error) => {
+      console.error("Error playing illegal move sound:", error);
+    });
+  };
+  const playWinSound = () => {
+    const playWinSound = new Audio(
+      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/illegal.mp3"
+    );
+    playWinSound.play().catch((error) => {
+      console.error("Error playing illegal move sound:", error);
+    });
+  };
   useEffect(() => {
     playGameStartSound();
   }, []);
@@ -53,6 +71,30 @@ function ChessComponent() {
       makeStockfishMove();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game]);
+
+  useEffect(() => {
+    if (game.isGameOver()) {
+      if (game.isCheckmate()) {
+        playGameEndSound();
+        toast.error("Checkmate! You lost the game!");
+      } else if (game.isDraw()) {
+        playGameEndSound();
+        toast.info("Draw! The game is over.");
+      } else if (game.isStalemate()) {
+        playGameEndSound();
+        toast.info("Stalemate! The game is over.");
+      } else if (game.isThreefoldRepetition()) {
+        playGameEndSound();
+        toast.info("Threefold repetition! The game is over.");
+      } else if (game.isInsufficientMaterial()) {
+        playGameEndSound();
+        toast.info("Insufficient material! The game is over.");
+      } else {
+        playWinSound();
+        toast.success("Congratulations! You won the game!");
+      }
+    }
   }, [game]);
 
   function makeStockfishMove() {
@@ -133,6 +175,7 @@ function ChessComponent() {
         return false;
       }
     } catch (error) {
+      playIllegalMoveSound();
       toast.error("Illegal move!");
       return false;
     }
@@ -180,6 +223,10 @@ function ChessComponent() {
   const resetGame = () => {
     setGame(new Chess(initialFen));
     setLastMove(null);
+  };
+
+  const setStockfishDifficulty = (difficulty: string | number) => {
+    stockfish.postMessage("setoption name Skill Level value " + difficulty);
   };
 
   return (
@@ -265,8 +312,31 @@ function ChessComponent() {
           </div>
         </div>
         <div className="right-content">
+          <div className="difficulty-buttons">
+            <h2>Difficulty</h2>
+            <button
+              className="easy-button"
+              onClick={() => setStockfishDifficulty(0)}
+            >
+              <FontAwesomeIcon icon={faChessPawn} /> Easy
+            </button>
+            <button
+              className="medium-button"
+              onClick={() => setStockfishDifficulty(5)}
+            >
+              <FontAwesomeIcon icon={faChessKnight} /> Medium
+            </button>
+            <button
+              className="hard-button"
+              onClick={() => setStockfishDifficulty(10)}
+            >
+              <FontAwesomeIcon icon={faChessKing} /> Hard
+            </button>
+          </div>
           <div className="reset-button">
-            <button onClick={resetGame}>Reset Game</button>
+            <button onClick={resetGame}>
+              <FontAwesomeIcon icon={faRedo} /> Reset
+            </button>
           </div>
         </div>
       </div>
