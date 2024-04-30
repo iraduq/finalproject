@@ -22,11 +22,11 @@ import {
   faTimes,
   faShieldAlt,
   faHouse,
-  faRedo,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert";
 
 const stockfish = new Worker("./node_modules/stockfish.js/stockfish.js");
 
@@ -77,22 +77,46 @@ function ChessComponent() {
     if (game.isGameOver()) {
       if (game.isCheckmate()) {
         playGameEndSound();
-        toast.error("Checkmate! You lost the game!");
+        Swal({
+          title: "Checkmate!",
+          text: "You lost the game!",
+          icon: "error",
+        });
       } else if (game.isDraw()) {
         playGameEndSound();
-        toast.info("Draw! The game is over.");
+        Swal({
+          title: "Draw!",
+          text: "The game is over.",
+          icon: "info",
+        });
       } else if (game.isStalemate()) {
         playGameEndSound();
-        toast.info("Stalemate! The game is over.");
+        Swal({
+          title: "Stalemate!",
+          text: "The game is over.",
+          icon: "info",
+        });
       } else if (game.isThreefoldRepetition()) {
         playGameEndSound();
-        toast.info("Threefold repetition! The game is over.");
+        Swal({
+          title: "Threefold repetition!",
+          text: "The game is over.",
+          icon: "info",
+        });
       } else if (game.isInsufficientMaterial()) {
         playGameEndSound();
-        toast.info("Insufficient material! The game is over.");
+        Swal({
+          title: "Insufficient material!",
+          text: "The game is over.",
+          icon: "info",
+        });
       } else {
         playWinSound();
-        toast.success("Congratulations! You won the game!");
+        Swal({
+          title: "Congratulations!",
+          text: "You won the game!",
+          icon: "success",
+        });
       }
     }
   }, [game]);
@@ -146,6 +170,20 @@ function ChessComponent() {
     if (game.turn() !== "w") {
       return false;
     }
+
+    const legalMoves = game
+      .moves({ verbose: true })
+      .filter((move) => move.from === sourceSquare);
+
+    console.log("Legal moves for the piece:");
+    legalMoves.forEach((move, index) => {
+      console.log(`Move ${index + 1}:`);
+      console.log(`  From: ${move.from}`);
+      console.log(`  To: ${move.to}`);
+      console.log(`  Piece: ${move.piece}`);
+      console.log(`  Flags: ${move.flags}`);
+      console.log(`  San: ${move.san}`);
+    });
 
     const initialGame = new Chess(game.fen());
     try {
@@ -223,6 +261,11 @@ function ChessComponent() {
   const resetGame = () => {
     setGame(new Chess(initialFen));
     setLastMove(null);
+    Swal({
+      title: "Game Reset",
+      text: "The game has been reset.",
+      icon: "info",
+    });
   };
 
   const setStockfishDifficulty = (difficulty: string | number) => {
@@ -312,8 +355,10 @@ function ChessComponent() {
           </div>
         </div>
         <div className="right-content">
+          <div className="reset-button">
+            <button onClick={resetGame}>Reset</button>
+          </div>
           <div className="difficulty-buttons">
-            <h2>Difficulty</h2>
             <button
               className="easy-button"
               onClick={() => setStockfishDifficulty(0)}
@@ -331,11 +376,6 @@ function ChessComponent() {
               onClick={() => setStockfishDifficulty(10)}
             >
               <FontAwesomeIcon icon={faChessKing} /> Hard
-            </button>
-          </div>
-          <div className="reset-button">
-            <button onClick={resetGame}>
-              <FontAwesomeIcon icon={faRedo} /> Reset
             </button>
           </div>
         </div>

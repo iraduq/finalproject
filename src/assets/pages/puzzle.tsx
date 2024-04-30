@@ -6,6 +6,7 @@ import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import { Chess } from "chess.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert";
 
 const PuzzleGame = () => {
   const [pgn, setPgn] = useState("");
@@ -112,7 +113,11 @@ const PuzzleGame = () => {
             }
           } else {
             if (solution.length === nextSolutionIndex) {
-              toast.success("Congratulations! You've completed the puzzle!");
+              Swal({
+                title: "Congratulations!",
+                text: "You've completed the puzzle!",
+                icon: "success",
+              });
             }
           }
 
@@ -158,6 +163,7 @@ const PuzzleGame = () => {
             />
 
             <ToastContainer
+              autoClose={500}
               style={{
                 position: "fixed",
                 left: "50%",

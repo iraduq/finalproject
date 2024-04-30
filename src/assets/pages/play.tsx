@@ -22,6 +22,8 @@ import {
   faChartBar,
 } from "@fortawesome/free-solid-svg-icons";
 
+import Swal from "sweetalert";
+
 const OnlineGame = () => {
   useEffect(() => {
     const audio = new Audio(gameStartSound);
@@ -128,6 +130,29 @@ const OnlineGame = () => {
       }
     }
   }, [lastMessage, jwtReceived, playerColor]);
+
+  useEffect(() => {
+    if (game.isGameOver()) {
+      let message = "";
+      if (game.isCheckmate()) {
+        message = "Checkmate! You lost the game!";
+      } else if (game.isDraw()) {
+        message = "Draw! The game is over.";
+      } else if (game.isStalemate()) {
+        message = "Stalemate! The game is over.";
+      } else if (game.isThreefoldRepetition()) {
+        message = "Threefold repetition! The game is over.";
+      } else if (game.isInsufficientMaterial()) {
+        message = "Insufficient material! The game is over.";
+      } else {
+        message = "Congratulations! You won the game!";
+      }
+      Swal({
+        title: message,
+        icon: "info",
+      });
+    }
+  }, [game]);
 
   return (
     <div className="container-online">
