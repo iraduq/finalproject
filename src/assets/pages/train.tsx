@@ -269,13 +269,33 @@ function ChessComponent() {
       console.log("Legal moves for the picked up piece:");
       pieceMoves.forEach((move, index) => {
         console.log(`Move ${index + 1}:`);
-        console.log(`  From: ${move.from}`);
-        console.log(`  To: ${move.to}`);
-        console.log(`  Piece: ${move.piece}`);
-        console.log(`  Flags: ${move.flags}`);
-        console.log(`  San: ${move.san}`);
+        console.log(`From: ${move.from}`);
+        console.log(`To: ${move.to}`);
+        console.log(`Piece: ${move.piece}`);
+        console.log(`Flags: ${move.flags}`);
+        console.log(`San: ${move.san}`);
 
-        //const targetSquare = move.to;
+        const targetSquareElement = document.querySelector<HTMLElement>(
+          `[data-square="${move.to}"]`
+        );
+
+        if (targetSquareElement) {
+          const originalFilter = targetSquareElement.style.filter;
+          targetSquareElement.style.filter = "brightness(100%)";
+
+          const greyDot = document.createElement("span");
+          greyDot.className = "grey-dot";
+          targetSquareElement.appendChild(greyDot);
+
+          const handleDragEnd = () => {
+            targetSquareElement.style.filter = originalFilter;
+            targetSquareElement.removeChild(greyDot);
+            document.removeEventListener("dragend", handleDragEnd);
+          };
+          document.addEventListener("dragend", handleDragEnd);
+        } else {
+          console.warn("Target square element not found");
+        }
       });
     } else {
       console.log("No legal moves available for the picked up piece.");
