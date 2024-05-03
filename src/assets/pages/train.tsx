@@ -130,7 +130,7 @@ function ChessComponent() {
     const response = event.data;
     if (response.startsWith("bestmove")) {
       const move = response.split(" ")[1];
-      console.log(move);
+
       await delay(() => {
         const moveResult = game.move(move);
         if (moveResult) {
@@ -170,20 +170,6 @@ function ChessComponent() {
     if (game.turn() !== "w") {
       return false;
     }
-
-    const legalMoves = game
-      .moves({ verbose: true })
-      .filter((move) => move.from === sourceSquare);
-
-    console.log("Legal moves for the piece:");
-    legalMoves.forEach((move, index) => {
-      console.log(`Move ${index + 1}:`);
-      console.log(`  From: ${move.from}`);
-      console.log(`  To: ${move.to}`);
-      console.log(`  Piece: ${move.piece}`);
-      console.log(`  Flags: ${move.flags}`);
-      console.log(`  San: ${move.san}`);
-    });
 
     const initialGame = new Chess(game.fen());
     try {
@@ -272,6 +258,30 @@ function ChessComponent() {
     stockfish.postMessage("setoption name Skill Level value " + difficulty);
   };
 
+  const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
+    console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
+
+    const allMoves = game.moves({ verbose: true });
+
+    const pieceMoves = allMoves.filter((move) => move.from === piece);
+
+    if (pieceMoves.length > 0) {
+      console.log("Legal moves for the picked up piece:");
+      pieceMoves.forEach((move, index) => {
+        console.log(`Move ${index + 1}:`);
+        console.log(`  From: ${move.from}`);
+        console.log(`  To: ${move.to}`);
+        console.log(`  Piece: ${move.piece}`);
+        console.log(`  Flags: ${move.flags}`);
+        console.log(`  San: ${move.san}`);
+
+        //const targetSquare = move.to;
+      });
+    } else {
+      console.log("No legal moves available for the picked up piece.");
+    }
+  };
+
   return (
     <div className="chess-wrapper">
       <div className="header-online">
@@ -351,7 +361,12 @@ function ChessComponent() {
             </div>
           )}
           <div className="chessboard-wrapper">
-            <Chessboard position={game.fen()} onPieceDrop={handleMove} />
+            <Chessboard
+              position={game.fen()}
+              onPieceDrop={handleMove}
+              onPieceDragBegin={handlePieceDragBegin}
+              arePremovesAllowed={true}
+            />
           </div>
         </div>
         <div className="right-content">
