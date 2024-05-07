@@ -7,6 +7,7 @@ import { Chess } from "chess.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert";
+import moveSelf from "../constants/sounds/move-self.mp3";
 
 const PuzzleGame = () => {
   const [pgn, setPgn] = useState("");
@@ -70,7 +71,15 @@ const PuzzleGame = () => {
     }
   }, [currentPlayer]);
 
-  const handleMove = (sourceSquare: string, targetSquare: string): boolean => {
+  const playMoveSelfSound = () => {
+    const audio = new Audio(moveSelf);
+    audio.volume = 1;
+    audio.play();
+  };
+
+  const [currentSolutionIndex, setCurrentSolutionIndex] = useState(0);
+
+  const handleMove = (sourceSquare: string, targetSquare: string) => {
     if (!game) return false;
     if (game.turn() !== currentPlayer) return false;
 
@@ -86,18 +95,21 @@ const PuzzleGame = () => {
       if (move) {
         const userMove = move.from + move.to;
 
-        const isCorrectMove = solution.some(
-          (solutionMove) => solutionMove === userMove
-        );
-
-        if (isCorrectMove) {
+        if (userMove === solution[currentSolutionIndex]) {
           toast.success("Correct Move");
+          playMoveSelfSound();
           setFen(game.fen());
 
-          const nextSolutionIndex = solution.indexOf(userMove) + 1;
-          const nextMove = solution[nextSolutionIndex];
+          setCurrentSolutionIndex((prevIndex) => prevIndex + 1);
 
-          if (nextMove) {
+          if (currentSolutionIndex === solution.length - 1) {
+            Swal({
+              title: "Congratulations!",
+              text: "You've completed the puzzle!",
+              icon: "success",
+            });
+          } else {
+            const nextMove = solution[currentSolutionIndex + 1];
             const sourceSquareNext = nextMove.substring(0, 2);
             const targetSquareNext = nextMove.substring(2, 4);
 
@@ -110,14 +122,8 @@ const PuzzleGame = () => {
             if (nextMoveResult) {
               console.log("Next solution move:", nextMove);
               setFen(game.fen());
-            }
-          } else {
-            if (solution.length === nextSolutionIndex) {
-              Swal({
-                title: "Congratulations!",
-                text: "You've completed the puzzle!",
-                icon: "success",
-              });
+
+              setCurrentSolutionIndex((prevIndex) => prevIndex + 1);
             }
           }
 
@@ -134,9 +140,101 @@ const PuzzleGame = () => {
       }
     } catch (error) {
       playIllegalMoveSound();
-      toast.error("Illegal move!");
+      toast.error("An error occurred while processing the move.");
       return false;
     }
+  };
+
+  const [puzzleCompleted, setPuzzleCompleted] = useState(false);
+
+  const handleNextSolution = () => {
+    if (!game || puzzleCompleted) return;
+
+    const makeNextMove = (index: number) => {
+      if (index === solution.length) {
+        playMoveSelfSound();
+        Swal({
+          title: "Congratulations!",
+          text: "You've completed the puzzle!",
+          icon: "success",
+        });
+        setPuzzleCompleted(true);
+        return;
+      }
+
+      const nextMove = solution[index];
+      const sourceSquare = nextMove.substring(0, 2);
+      const targetSquare = nextMove.substring(2, 4);
+
+      setTimeout(() => {
+        const moveResult = game.move({
+          from: sourceSquare,
+          to: targetSquare,
+          promotion: "q",
+        });
+
+        if (moveResult) {
+          playMoveSelfSound();
+          setFen(game.fen());
+          setCurrentSolutionIndex(index + 1);
+          toast.success("Correct Move");
+
+          if (index === solution.length - 1) {
+            Swal({
+              title: "Congratulations!",
+              text: "You've completed the puzzle!",
+              icon: "success",
+            });
+            setPuzzleCompleted(true);
+          }
+        }
+      }, 1000);
+    };
+
+    const resetFenToDefault = () => {
+      setFen(fen);
+    };
+
+    resetFenToDefault();
+    makeNextMove(currentSolutionIndex);
+  };
+
+  const handleShowSolution = () => {
+    if (!game) return;
+
+    const makeNextMove = (index: number) => {
+      if (index === solution.length) {
+        playMoveSelfSound();
+        Swal({
+          title: "Congratulations!",
+          text: "You've completed the puzzle!",
+          icon: "success",
+        });
+        return;
+      }
+
+      const nextMove = solution[index];
+      const sourceSquare = nextMove.substring(0, 2);
+      const targetSquare = nextMove.substring(2, 4);
+
+      setTimeout(() => {
+        const moveResult = game.move({
+          from: sourceSquare,
+          to: targetSquare,
+          promotion: "q",
+        });
+
+        if (moveResult) {
+          playMoveSelfSound();
+          setFen(game.fen());
+          setCurrentSolutionIndex(index + 1);
+          toast.success("Correct Move");
+          makeNextMove(index + 1);
+        }
+      }, 1000);
+    };
+
+    makeNextMove(0);
   };
 
   if (loading) {
@@ -158,12 +256,6 @@ const PuzzleGame = () => {
       console.log("Legal moves for the picked up piece:");
       pieceMoves.forEach((move, index) => {
         console.log(`Move ${index + 1}:`);
-        console.log(`From: ${move.from}`);
-        console.log(`To: ${move.to}`);
-        console.log(`Piece: ${move.piece}`);
-        console.log(`Flags: ${move.flags}`);
-        console.log(`San: ${move.san}`);
-
         const targetSquareElement = document.querySelector<HTMLElement>(
           `[data-square="${move.to}"]`
         );
@@ -219,6 +311,15 @@ const PuzzleGame = () => {
                 left: "50%",
               }}
             />
+          </div>
+          <div className="right-puzzle">
+            <button onClick={handleNextSolution}>Next Move</button>
+            <p>
+              {" "}
+              Sa fac: cand dau pe solution sa se reseteze la fenul initial al
+              puzzle ului si sa faca ce face acum
+            </p>
+            <button onClick={handleShowSolution}>Solution</button>
           </div>
         </div>
       </div>
