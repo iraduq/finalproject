@@ -314,11 +314,6 @@ const PuzzleGame = () => {
           </div>
           <div className="right-puzzle">
             <button onClick={handleNextSolution}>Next Move</button>
-            <p>
-              {" "}
-              Sa fac: cand dau pe solution sa se reseteze la fenul initial al
-              puzzle ului si sa faca ce face acum
-            </p>
             <button onClick={handleShowSolution}>Solution</button>
           </div>
         </div>
