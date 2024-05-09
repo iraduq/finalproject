@@ -43,6 +43,7 @@
     "websocket-game-lobby-client": "^1.0.2"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.30",
     "@types/node": "^20.12.7",
     "@types/papaparse": "^5.3.14",
     "@types/pgn-parser": "^2.1.3",

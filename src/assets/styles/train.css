@@ -347,3 +347,52 @@ h2 {
   border: 3px solid white;
   border-radius: 50px;
 }
+
+.container-online-puzzle {
+  margin-left: 5%;
+  display: flex;
+}
+.right-side {
+  margin-left: 20%;
+  display: flex;
+  align-items: center;
+}
+.right-puzzle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.right-puzzle button {
+  margin-bottom: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  background-color: #f8cbb4;
+  border-style: none;
+  border-radius: 8px;
+  min-width: 300px;
+  padding: 16px 24px;
+  transform: scale(1);
+  transition: 0.2s;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.right-puzzle button {
+  background-color: #f8cbb4;
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.right-puzzle button {
+  transform: scale(0.95);
+  box-shadow: none;
+}

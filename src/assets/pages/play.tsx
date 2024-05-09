@@ -78,8 +78,9 @@ const OnlineGame = () => {
     return false;
   };
 
+  console.log(localStorage.getItem("token"));
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://192.168.38.121:8000/ws/${localStorage.getItem("token")}`,
+    `ws://172.16.1.62:8000/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -134,9 +135,7 @@ const OnlineGame = () => {
   useEffect(() => {
     if (game.isGameOver()) {
       let message = "";
-      if (game.isCheckmate()) {
-        message = "Checkmate! You lost the game!";
-      } else if (game.isDraw()) {
+      if (game.isDraw()) {
         message = "Draw! The game is over.";
       } else if (game.isStalemate()) {
         message = "Stalemate! The game is over.";
@@ -222,6 +221,7 @@ const OnlineGame = () => {
               }
               arePremovesAllowed={true}
               onPieceDragBegin={handlePieceDragBegin}
+              areArrowsAllowed={true}
             />
 
             {isProcessingMove && (

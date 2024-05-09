@@ -39,7 +39,6 @@ const PuzzleGame = () => {
         if (puzzleData && puzzleData.game && puzzleData.game.pgn) {
           setPgn(puzzleData.game.pgn);
           setSolution(puzzleData.puzzle.solution);
-          console.log(puzzleData.puzzle.solution);
           setLoading(false);
         } else {
           throw new Error("No daily puzzle found");
@@ -78,6 +77,7 @@ const PuzzleGame = () => {
   };
 
   const [currentSolutionIndex, setCurrentSolutionIndex] = useState(0);
+  const [cooldown, setCooldown] = useState(false);
 
   const handleMove = (sourceSquare: string, targetSquare: string) => {
     if (!game) return false;
@@ -86,15 +86,23 @@ const PuzzleGame = () => {
     const previousFen = game.fen();
 
     try {
+      const currentMove = solution[currentSolutionIndex];
+      const promo = currentMove.substring(4, 5);
+
       const move = game.move({
         from: sourceSquare,
         to: targetSquare,
-        promotion: "q",
+        promotion: promo,
       });
 
-      if (move) {
-        const userMove = move.from + move.to;
+      let userMove = "";
 
+      if (move) {
+        if (move.promotion) {
+          userMove = move.from + move.to + move.promotion;
+        } else {
+          userMove = move.from + move.to;
+        }
         if (userMove === solution[currentSolutionIndex]) {
           toast.success("Correct Move");
           playMoveSelfSound();
@@ -104,36 +112,41 @@ const PuzzleGame = () => {
 
           if (currentSolutionIndex === solution.length - 1) {
             Swal({
-              title: "Congratulations!",
-              text: "You've completed the puzzle!",
-              icon: "success",
+              title: "Puzzle Completed",
+              text: "All moves have been completed.",
+              icon: "info",
             });
           } else {
-            const nextMove = solution[currentSolutionIndex + 1];
-            const sourceSquareNext = nextMove.substring(0, 2);
-            const targetSquareNext = nextMove.substring(2, 4);
+            setCooldown(true);
 
-            const nextMoveResult = game.move({
-              from: sourceSquareNext,
-              to: targetSquareNext,
-              promotion: "q",
-            });
+            setTimeout(() => {
+              setCooldown(false);
 
-            if (nextMoveResult) {
-              console.log("Next solution move:", nextMove);
-              setFen(game.fen());
+              const nextMove = solution[currentSolutionIndex + 1];
+              const sourceSquareNext = nextMove.substring(0, 2);
+              const targetSquareNext = nextMove.substring(2, 4);
+              const promotion = nextMove.substring(4, 5);
 
-              setCurrentSolutionIndex((prevIndex) => prevIndex + 1);
-            }
+              if (!cooldown) {
+                playMoveSelfSound();
+                const nextMoveResult = game.move({
+                  from: sourceSquareNext,
+                  to: targetSquareNext,
+                  promotion: promotion,
+                });
+
+                if (nextMoveResult) {
+                  setFen(game.fen());
+                  setCurrentSolutionIndex((prevIndex) => prevIndex + 1);
+                }
+              }
+            }, 1000);
           }
-
-          return true;
         } else {
           playIllegalMoveSound();
           toast.error("Wrong Move!");
           game.load(previousFen);
           setFen(previousFen);
-          return false;
         }
       } else {
         throw new Error("Invalid move");
@@ -143,34 +156,35 @@ const PuzzleGame = () => {
       toast.error("An error occurred while processing the move.");
       return false;
     }
+
+    return true;
   };
 
   const [puzzleCompleted, setPuzzleCompleted] = useState(false);
 
   const handleNextSolution = () => {
-    if (!game || puzzleCompleted) return;
+    if (!game || puzzleCompleted) {
+      Swal({
+        title: "Puzzle Completed",
+        text: "To continue, please reset the game.",
+        icon: "error",
+      });
+      return;
+    }
 
-    const makeNextMove = (index: number) => {
-      if (index === solution.length) {
-        playMoveSelfSound();
-        Swal({
-          title: "Congratulations!",
-          text: "You've completed the puzzle!",
-          icon: "success",
-        });
-        setPuzzleCompleted(true);
-        return;
-      }
+    const makeNextMove = (index: number, movesToMake: number) => {
+      if (movesToMake === 0) return;
 
       const nextMove = solution[index];
       const sourceSquare = nextMove.substring(0, 2);
       const targetSquare = nextMove.substring(2, 4);
+      const promotion = nextMove.substring(4, 5);
 
       setTimeout(() => {
         const moveResult = game.move({
           from: sourceSquare,
           to: targetSquare,
-          promotion: "q",
+          promotion: promotion,
         });
 
         if (moveResult) {
@@ -181,11 +195,13 @@ const PuzzleGame = () => {
 
           if (index === solution.length - 1) {
             Swal({
-              title: "Congratulations!",
-              text: "You've completed the puzzle!",
-              icon: "success",
+              title: "Puzzle Completed",
+              text: "All moves have been completed",
+              icon: "info",
             });
             setPuzzleCompleted(true);
+          } else {
+            makeNextMove(index + 1, movesToMake - 1);
           }
         }
       }, 1000);
@@ -196,45 +212,65 @@ const PuzzleGame = () => {
     };
 
     resetFenToDefault();
-    makeNextMove(currentSolutionIndex);
+    if (currentSolutionIndex == solution.length) {
+      Swal({
+        title: "Puzzle Completed",
+        text: "To continue, please reset the game.",
+        icon: "error",
+      });
+    } else {
+      makeNextMove(currentSolutionIndex, 2);
+    }
   };
 
-  const handleShowSolution = () => {
-    if (!game) return;
+  const handleShowSolution = async () => {
+    try {
+      if (!game) return;
 
-    const makeNextMove = (index: number) => {
-      if (index === solution.length) {
-        playMoveSelfSound();
-        Swal({
-          title: "Congratulations!",
-          text: "You've completed the puzzle!",
-          icon: "success",
-        });
-        return;
-      }
-
-      const nextMove = solution[index];
-      const sourceSquare = nextMove.substring(0, 2);
-      const targetSquare = nextMove.substring(2, 4);
-
-      setTimeout(() => {
-        const moveResult = game.move({
-          from: sourceSquare,
-          to: targetSquare,
-          promotion: "q",
-        });
-
-        if (moveResult) {
+      const makeNextMove = (index: number, solution: string[]) => {
+        if (index === solution.length - 1) {
           playMoveSelfSound();
-          setFen(game.fen());
-          setCurrentSolutionIndex(index + 1);
-          toast.success("Correct Move");
-          makeNextMove(index + 1);
+          Swal({
+            title: "Puzzle Completed",
+            text: "All moves have been completed",
+            icon: "info",
+          });
+          return;
         }
-      }, 1000);
-    };
 
-    makeNextMove(0);
+        const nextMove = solution[index];
+        const sourceSquare = nextMove.substring(0, 2);
+        const targetSquare = nextMove.substring(2, 4);
+        const promotion = nextMove.substring(4, 5);
+
+        setTimeout(() => {
+          const moveResult = game.move({
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: promotion,
+          });
+
+          if (moveResult) {
+            playMoveSelfSound();
+            setFen(game.fen());
+            setCurrentSolutionIndex(index + 1);
+            makeNextMove(index + 1, solution);
+          }
+        }, 1000);
+      };
+
+      if (currentSolutionIndex !== 0) {
+        Swal({
+          title: "Error",
+          text: "Please reset the game.",
+          icon: "error",
+        });
+      } else {
+        makeNextMove(0, solution);
+      }
+    } catch (error) {
+      console.error("Error handling show solution:", error);
+    }
   };
 
   if (loading) {
@@ -283,8 +319,39 @@ const PuzzleGame = () => {
     }
   };
 
+  const handleResetGame = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch("https://lichess.org/api/puzzle/daily");
+      if (!response.ok) {
+        throw new Error("Failed to fetch daily puzzle");
+      }
+      const puzzleData = await response.json();
+
+      if (puzzleData && puzzleData.game && puzzleData.game.pgn) {
+        const newPgn = puzzleData.game.pgn;
+        const newChess = new Chess();
+        newChess.loadPgn(newPgn);
+
+        setPgn(newPgn);
+        setSolution(puzzleData.puzzle.solution);
+        setGame(newChess);
+        setCurrentPlayer(newChess.turn() as "w" | "b");
+        setFen(newChess.fen());
+        setCurrentSolutionIndex(0);
+        setLoading(false);
+      } else {
+        throw new Error("No daily puzzle found");
+      }
+    } catch (error) {
+      console.error("Error fetching puzzle data:", error);
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="container-online">
+    <div className="container-online-puzzle">
       <div className="wrapper-online">
         <div className="left-area-online">
           <div className="header-online">
@@ -302,6 +369,7 @@ const PuzzleGame = () => {
               }
               arePiecesDraggable={true}
               onPieceDragBegin={handlePieceDragBegin}
+              areArrowsAllowed={true}
             />
 
             <ToastContainer
@@ -312,10 +380,60 @@ const PuzzleGame = () => {
               }}
             />
           </div>
-          <div className="right-puzzle">
-            <button onClick={handleNextSolution}>Next Move</button>
-            <button onClick={handleShowSolution}>Solution</button>
+        </div>
+      </div>
+      <div className="right-side">
+        <div className="right-puzzle">
+          <div className="next-solution">
+            <button onClick={handleNextSolution}>
+              <svg
+                className="css-i6dzq1"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                fill="none"
+                strokeWidth="2"
+                stroke="currentColor"
+                height="60"
+                width="60"
+                viewBox="0 0 24 24"
+              >
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              Next Move
+            </button>
           </div>
+          <button onClick={handleShowSolution}>
+            <svg
+              className="css-i6dzq1"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              fill="none"
+              strokeWidth="2"
+              stroke="currentColor"
+              height="60"
+              width="60"
+              viewBox="0 0 24 24"
+            >
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Solution
+          </button>
+          <button onClick={handleResetGame}>
+            <svg
+              className="css-i6dzq1"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              fill="none"
+              strokeWidth="2"
+              stroke="currentColor"
+              height="60"
+              width="60"
+              viewBox="0 0 24 24"
+            >
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Reset Game
+          </button>
         </div>
       </div>
     </div>

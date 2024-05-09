@@ -386,6 +386,9 @@ function ChessComponent() {
               onPieceDrop={handleMove}
               onPieceDragBegin={handlePieceDragBegin}
               arePremovesAllowed={true}
+              areArrowsAllowed={true}
+              clearPremovesOnRightClick={true}
+              promotionDialogVariant={"vertical"}
             />
           </div>
         </div>
