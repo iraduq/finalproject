@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
+import Swal from "sweetalert";
 
 const LoginForm = () => {
   const [loginInput, setLoginInput] = useState({
@@ -18,25 +19,26 @@ const LoginForm = () => {
   });
 
   const [isLoginTab, setIsLoginTab] = useState(true);
+  const [usernameValid, setUsernameValid] = useState(false);
+  const [passwordLengthValid, setPasswordLengthValid] = useState(false);
+  const [passwordUpperCaseValid, setPasswordUpperCaseValid] = useState(false);
+  const [passwordLowerCaseValid, setPasswordLowerCaseValid] = useState(false);
+  const [passwordDigitValid, setPasswordDigitValid] = useState(false);
+  const [passwordSpecialCharValid, setPasswordSpecialCharValid] =
+    useState(false);
+  const [repeatPasswordValid, setRepeatPasswordValid] = useState(false);
+  const [emailValid, setEmailValid] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("token");
-    if (isLoggedIn) {
-      navigate("/main");
-    }
-  }, [navigate]);
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       if (loginInput.email !== "" && loginInput.password !== "") {
-        console.log(loginInput.email);
-        console.log(loginInput.password);
-        const url = `http://172.16.1.62:8000/login`;
+        const url = `http://172.16.1.39:8000/login`;
         const response = await axios.post(url, {
           email: loginInput.email,
           password: loginInput.password,
+          totp_code: "",
         });
         localStorage.setItem("token", response.data.access_token);
         navigate("/main");
@@ -56,9 +58,10 @@ const LoginForm = () => {
         registerInput.email !== "" &&
         registerInput.password !== "" &&
         registerInput.repeatPassword !== "" &&
-        registerInput.password === registerInput.repeatPassword
+        registerInput.password === registerInput.repeatPassword &&
+        emailValid
       ) {
-        const url = `http://172.16.1.62:8000/create_user`;
+        const url = `http://172.16.1.39:8000/create_user`;
         const response = await axios.post(url, {
           username: registerInput.username,
           password: registerInput.password,
@@ -66,13 +69,22 @@ const LoginForm = () => {
           email: registerInput.email,
           registration_date: new Date().toISOString(),
         });
-        localStorage.setItem("token", response.data.access_token);
-        navigate("/main");
+        if (response) {
+          Swal({
+            icon: "success",
+            title: "Success",
+            text: "Account registered successfully!",
+          });
+        }
       } else {
         throw new Error("Please provide valid input");
       }
     } catch (error) {
-      alert("Error registering the account!");
+      Swal({
+        icon: "error",
+        title: "Oops...",
+        text: "Error registering the account!",
+      });
     }
   };
 
@@ -106,6 +118,24 @@ const LoginForm = () => {
     setIsLoginTab((prev) => !prev);
   };
 
+  useEffect(() => {
+    setUsernameValid(
+      /^[a-zA-Z]*$/.test(registerInput.username) &&
+        registerInput.username !== ""
+    );
+    setPasswordLengthValid(registerInput.password.length >= 8);
+    setPasswordUpperCaseValid(/[A-Z]/.test(registerInput.password));
+    setPasswordLowerCaseValid(/[a-z]/.test(registerInput.password));
+    setPasswordDigitValid(/\d/.test(registerInput.password));
+    setPasswordSpecialCharValid(
+      /[!@#$%^&*()_+\-=[\]{};:\\|,.<>/?]/.test(registerInput.password)
+    );
+    setRepeatPasswordValid(
+      registerInput.password === registerInput.repeatPassword
+    );
+    setEmailValid(/\S+@\S+\.\S+/.test(registerInput.email));
+  }, [registerInput]);
+
   return (
     <div className="left">
       <div className="middle">
@@ -130,7 +160,7 @@ const LoginForm = () => {
               type="radio"
               name="tab"
               className="sign-up"
-              checked={!isLoginTab}
+              defaultChecked={!isLoginTab}
             />
             <label
               htmlFor="tab-2"
@@ -201,6 +231,14 @@ const LoginForm = () => {
                     value={registerInput.username}
                     onChange={(e) => handleInput(e, "register")}
                   />
+                  <div className="restrictions">
+                    <div
+                      className="changed-size"
+                      style={{ color: usernameValid ? "green" : "red" }}
+                    >
+                      {usernameValid ? "\u2713" : "\u2717"} Only characters{" "}
+                    </div>
+                  </div>
                 </div>
                 <div className="group">
                   <label htmlFor="pass-signup" className="label">
@@ -215,6 +253,48 @@ const LoginForm = () => {
                     value={registerInput.password}
                     onChange={(e) => handleInput(e, "register")}
                   />
+                  <div className="restrictions">
+                    <div
+                      className="changed-size"
+                      style={{ color: passwordLengthValid ? "green" : "red" }}
+                    >
+                      {passwordLengthValid ? "\u2713" : "\u2717"} At least 8
+                      characters
+                    </div>
+                    <div
+                      className="changed-size"
+                      style={{
+                        color: passwordUpperCaseValid ? "green" : "red",
+                      }}
+                    >
+                      {passwordUpperCaseValid ? "\u2713" : "\u2717"} One
+                      uppercase
+                    </div>
+                    <div
+                      className="changed-size"
+                      style={{
+                        color: passwordLowerCaseValid ? "green" : "red",
+                      }}
+                    >
+                      {passwordLowerCaseValid ? "\u2713" : "\u2717"} One
+                      lowercase
+                    </div>
+                    <div
+                      className="changed-size"
+                      style={{ color: passwordDigitValid ? "green" : "red" }}
+                    >
+                      {passwordDigitValid ? "\u2713" : "\u2717"} One digit
+                    </div>
+                    <div
+                      className="changed-size"
+                      style={{
+                        color: passwordSpecialCharValid ? "green" : "red",
+                      }}
+                    >
+                      {passwordSpecialCharValid ? "\u2713" : "\u2717"} One
+                      special character (other than ' or ")
+                    </div>
+                  </div>
                 </div>
                 <div className="group">
                   <label htmlFor="pass-repeat" className="label">
@@ -229,19 +309,31 @@ const LoginForm = () => {
                     value={registerInput.repeatPassword}
                     onChange={(e) => handleInput(e, "register")}
                   />
+                  <div
+                    className="changed-size"
+                    style={{ color: repeatPasswordValid ? "green" : "red" }}
+                  >
+                    {repeatPasswordValid ? "\u2713" : "\u2717"} Passwords match
+                  </div>
                 </div>
                 <div className="group">
-                  <label htmlFor="email" className="label">
-                    Email Address
+                  <label htmlFor="email-signup" className="label">
+                    Email
                   </label>
                   <input
-                    id="email"
-                    type="text"
+                    id="email-signup"
+                    type="email"
                     className="input"
                     name="email"
                     value={registerInput.email}
                     onChange={(e) => handleInput(e, "register")}
                   />
+                  <div
+                    className="changed-size"
+                    style={{ color: emailValid ? "green" : "red" }}
+                  >
+                    {emailValid ? "\u2713" : "\u2717"} Valid email format
+                  </div>
                 </div>
                 <div className="group">
                   <button type="submit" className="button">

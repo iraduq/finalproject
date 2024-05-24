@@ -14,6 +14,7 @@ import AboutComponent from "../src/assets/pages/about.tsx";
 import OnlineGame from "../src/assets/pages/play";
 import ContactPage from "../src/assets/pages/contact.tsx";
 import PuzzleGame from "./assets/pages/puzzle.tsx";
+import CustomTable from "./assets/pages/profile.tsx";
 
 const App: React.FC = () => {
   const isAuthenticated = () => {
@@ -54,6 +55,10 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute element={<CustomerReview />} path="/review" />
           }
+        />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute element={<CustomTable />} path="/profile" />}
         />
         <Route
           path="/about"

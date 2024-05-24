@@ -16,7 +16,7 @@
 }
 
 .footer__logo {
-  font-family: 'Pacifico', cursive;
+  font-family: "Pacifico", cursive;
   font-weight: 400;
   text-transform: lowercase;
   font-size: 1.5rem;
@@ -24,14 +24,14 @@
 
 .footer__addr h2 {
   margin-top: 1.3em;
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   font-size: 1.1em;
   font-weight: 400;
 }
 
 .nav__title {
   font-weight: 600;
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   display: flex;
   align-items: center;
   margin: 0;

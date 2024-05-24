@@ -1,4 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Oswald");
+@import url("https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap");
+
 .container-online {
   position: relative;
 }
@@ -6,6 +8,16 @@
 .wrapper-online {
   display: flex;
   align-items: center;
+}
+.first-clock,
+.second-clock img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+  -lmoz-user-drag: none;
+  -ms-user-select: none;
+  -ms-user-drag: none;
 }
 
 .header-online {
@@ -104,9 +116,7 @@
   .left-area-online {
     margin: 0 auto;
   }
-}
-
-/* Large devices (laptops/desktops, 992px and up) */
+} /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
   .chessboard-container-online {
     height: 80vh;
@@ -138,12 +148,10 @@
 }
 
 .game-info-container {
-  height: 50vh;
+  height: 70vh;
   font-weight: 900;
   font-size: 1.5em;
   margin: 0 auto;
-  background: rgba(181, 136, 99, 255);
-  border: 1px solid #ccc;
   padding: 20px;
   text-align: center;
 }
@@ -159,4 +167,71 @@
 
 .game-info-container li {
   font-size: 1.2em;
+}
+
+.top-first-clock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.bottom-first-clock {
+  margin-top: 3%;
+  display: flex;
+  align-items: center;
+  font-size: 60px;
+  background-color: #b08c64;
+  border: 2px solid white;
+  border-radius: 10%;
+}
+
+.bottom-first-clock img {
+  margin-left: 10%;
+  width: 20%;
+  height: 20%;
+  margin-right: 10px;
+}
+
+.bottom-first-clock p {
+  font-family: "EB Garamond", serif;
+  font-weight: 900;
+  margin: 0;
+}
+.countdown-clock-container {
+  border: 2px solid white;
+  border-radius: 50%;
+  padding: 5px;
+  display: inline-block;
+}
+
+.countdown-clock-second {
+  border: 2px solid white;
+  border-radius: 50%;
+  padding: 5px;
+  display: inline-block;
+}
+.second-clock {
+  margin-top: 30%;
+}
+.second-first-clock {
+  margin-top: 3%;
+  display: flex;
+  align-items: center;
+  font-size: 60px;
+  background-color: #b08c64;
+  border: 2px solid white;
+  border-radius: 10%;
+}
+
+.second-first-clock img {
+  margin-left: 10%;
+  width: 20%;
+  height: 20%;
+  margin-right: 10px;
+}
+
+.second-first-clock p {
+  font-family: "EB Garamond", serif;
+  font-weight: 900;
+  margin: 0;
 }

@@ -1,58 +1,28 @@
 .mainpage-container {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
+
 .content-container {
   display: flex;
-  padding-bottom: 20px;
-  justify-content: space-between;
-  flex-direction: column;
+  flex-grow: 1;
+  margin-bottom: 3%;
+  margin-top: 3%;
 }
 
-.tabla {
-  margin-right: 2em;
-}
-
-.main-chessboard-table {
-  max-width: 100%;
-  margin: 0 auto;
+.middle-side-main {
+  flex: 2;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+}
+
+.right-side-main {
+  flex: 0.3;
 }
 
 .img-main-table {
-  width: 100%;
+  max-width: 100%;
   height: auto;
-}
-
-.menu-button-container {
-  margin: 0 auto;
-  font-size: 1.5em;
-}
-
-.menu-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  margin: 0 auto;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.98);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/*Pentru telefoane*/
-@media only screen and (max-width: 481px) {
-}
-
-/*Pentru tablete*/
-@media only screen and (min-width: 769px) {
-}
-
-/*Pentru Laptop*/
-@media only screen and (max-width: 1026px) {
 }

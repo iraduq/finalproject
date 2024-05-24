@@ -2,7 +2,7 @@ import "tailwindcss/tailwind.css";
 
 const Header = () => {
   return (
-    <div className="header grid-area-header font-oswald mt-2 bg-white p-4 text-center font-medium text-gray-500">
+    <div className="header grid-area-header font-oswald mt-2 bg-white p-4 text-center font-medium ">
       <div className="flex flex-col items-center justify-center">
         <img
           src="/src/assets/images/Logo.png"

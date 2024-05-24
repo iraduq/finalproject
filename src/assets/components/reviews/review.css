@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap");
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css);
 
 .grid-container,
@@ -13,7 +13,7 @@
 }
 
 figure.comentariu {
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   position: relative;
   overflow: hidden;
   margin: 16px;
@@ -24,7 +24,11 @@ figure.comentariu {
   text-align: center;
   font-size: 16px;
   padding: 30px;
-  background-image: radial-gradient(circle, rgba(5, 5, 5, 0.2) 0%, rgb(30, 30, 30) 100%);
+  background-image: radial-gradient(
+    circle,
+    rgba(5, 5, 5, 0.2) 0%,
+    rgb(30, 30, 30) 100%
+  );
 
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -67,8 +71,8 @@ figure.comentariu blockquote {
   position: relative;
 }
 figure.comentariu blockquote:before {
-  font-family: 'FontAwesome';
-  content: '\201C';
+  font-family: "FontAwesome";
+  content: "\201C";
   position: absolute;
   font-size: 70px;
   opacity: 0.25;
@@ -86,7 +90,7 @@ figure.comentariu .profile {
 }
 
 .right {
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   color: var(--greytext);
   font-size: 1.1rem;
   line-height: 1.6;
@@ -118,7 +122,7 @@ figure.comentariu .profile {
 /*Pentru telefoane*/
 @media only screen and (max-width: 550px) {
   figure.comentariu {
-    font-family: 'Oswald', sans-serif;
+    font-family: "Oswald", sans-serif;
     position: relative;
     overflow: hidden;
     margin: 16px;
@@ -129,7 +133,11 @@ figure.comentariu .profile {
     text-align: center;
     font-size: 16px;
     padding: 30px;
-    background-image: radial-gradient(circle, rgba(5, 5, 5, 0.2) 0%, rgb(30, 30, 30) 100%);
+    background-image: radial-gradient(
+      circle,
+      rgba(5, 5, 5, 0.2) 0%,
+      rgb(30, 30, 30) 100%
+    );
 
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -139,7 +147,7 @@ figure.comentariu .profile {
 /*Pentru tablete*/
 @media only screen and (min-width: 769px) {
   figure.comentariu {
-    font-family: 'Oswald', sans-serif;
+    font-family: "Oswald", sans-serif;
     position: relative;
     overflow: hidden;
     margin: 16px;
@@ -150,7 +158,11 @@ figure.comentariu .profile {
     text-align: center;
     font-size: 16px;
     padding: 30px;
-    background-image: radial-gradient(circle, rgba(5, 5, 5, 0.2) 0%, rgb(30, 30, 30) 100%);
+    background-image: radial-gradient(
+      circle,
+      rgba(5, 5, 5, 0.2) 0%,
+      rgb(30, 30, 30) 100%
+    );
 
     -webkit-box-sizing: border-box;
     box-sizing: border-box;

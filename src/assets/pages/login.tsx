@@ -6,8 +6,17 @@ import Reviews from "../components/reviews/reviews.tsx";
 
 const LoginPage = () => {
   return (
-    <div>
-      <Header />
+    <div className="login-content">
+      <div
+        className="header-login"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Header />
+      </div>
       <Background />
       <LoginForm />
       <Reviews />

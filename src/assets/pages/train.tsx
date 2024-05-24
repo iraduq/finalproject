@@ -5,6 +5,7 @@ import Background from "../constants/background/background.js";
 import { Move } from "chess.js";
 import "../styles/train.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { List } from "antd";
 
 import {
   faChessPawn,
@@ -13,14 +14,9 @@ import {
   faChessBishop,
   faChessQueen,
   faChessKing,
-  faExclamationCircle,
-  faSkullCrossbones,
-  faHandshake,
-  faTrophy,
   faChartBar,
   faCheck,
   faTimes,
-  faShieldAlt,
   faHouse,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
@@ -43,6 +39,10 @@ function ChessComponent() {
   const initialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [game, setGame] = useState(new Chess(initialFen));
   const [lastMove, setLastMove] = useState<React.ReactElement | null>(null);
+
+  if (lastMove) {
+    null;
+  }
 
   const playIllegalMoveSound = () => {
     const illegalMoveSound = new Audio(
@@ -77,11 +77,19 @@ function ChessComponent() {
     if (game.isGameOver()) {
       if (game.isCheckmate()) {
         playGameEndSound();
-        Swal({
-          title: "Checkmate!",
-          text: "You lost the game!",
-          icon: "error",
-        });
+        if (game.turn() == "w") {
+          Swal({
+            title: "Checkmate!",
+            text: "You lost the game!",
+            icon: "error",
+          });
+        } else {
+          Swal({
+            title: "Checkmate!",
+            text: "You won the game!",
+            icon: "succes",
+          });
+        }
       } else if (game.isDraw()) {
         playGameEndSound();
         Swal({
@@ -244,20 +252,6 @@ function ChessComponent() {
     });
   };
 
-  const resetGame = () => {
-    setGame(new Chess(initialFen));
-    setLastMove(null);
-    Swal({
-      title: "Game Reset",
-      text: "The game has been reset.",
-      icon: "info",
-    });
-  };
-
-  const setStockfishDifficulty = (difficulty: string | number) => {
-    stockfish.postMessage("setoption name Skill Level value " + difficulty);
-  };
-
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
     console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
 
@@ -304,118 +298,90 @@ function ChessComponent() {
 
   return (
     <div className="chess-wrapper">
+      <Background />
+      <ToastContainer></ToastContainer>
       <div className="header-online">
         <Link to="/main">
           <FontAwesomeIcon icon={faHouse} />
           <span className="icon-spacing">HOME</span>
         </Link>
       </div>
-      <Background />
       <div className="chess-container">
-        <ToastContainer />
-        <div className="left-content">
-          <ul>
-            <li className="icon-below">
-              <FontAwesomeIcon icon={faShieldAlt} />
-            </li>
-            <h2>
-              <FontAwesomeIcon icon={faChartBar} /> Game Information
-            </h2>
-            <ul>
-              <li>
-                <span>
-                  <FontAwesomeIcon icon={faChessKing} /> Current Turn:{" "}
-                  {game.turn() === "w" ? (
-                    <FontAwesomeIcon icon={faChessPawn} color="white" />
-                  ) : (
-                    <FontAwesomeIcon icon={faChessPawn} color="black" />
-                  )}
-                </span>
-              </li>
-
-              <li>
-                <FontAwesomeIcon icon={faExclamationCircle} /> Check:{" "}
-                {game.isCheck() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-
-              <li>
-                <FontAwesomeIcon icon={faSkullCrossbones} /> CheckMate:{" "}
-                {game.isCheckmate() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-
-              <li>
-                <FontAwesomeIcon icon={faHandshake} /> Draw:{" "}
-                {game.isDraw() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-
-              <li>
-                <FontAwesomeIcon icon={faTrophy} /> Game Over:{" "}
-                {game.isGameOver() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-            </ul>
-          </ul>
-        </div>
         <div className="chessboard-container">
-          {lastMove !== null ? (
-            <div className="last-move">{lastMove}</div>
-          ) : (
-            <div className="last-move">
-              <p>Last move</p>
-              <p>No moves have been made</p>
-            </div>
-          )}
           <div className="chessboard-wrapper">
             <Chessboard
               position={game.fen()}
               onPieceDrop={handleMove}
               onPieceDragBegin={handlePieceDragBegin}
-              arePremovesAllowed={true}
               areArrowsAllowed={true}
               clearPremovesOnRightClick={true}
               promotionDialogVariant={"vertical"}
             />
           </div>
         </div>
-        <div className="right-content">
-          <div className="reset-button">
-            <button onClick={resetGame}>Reset</button>
-          </div>
-          <div className="difficulty-buttons">
-            <button
-              className="easy-button"
-              onClick={() => setStockfishDifficulty(0)}
-            >
-              <FontAwesomeIcon icon={faChessPawn} /> Easy
-            </button>
-            <button
-              className="medium-button"
-              onClick={() => setStockfishDifficulty(5)}
-            >
-              <FontAwesomeIcon icon={faChessKnight} /> Medium
-            </button>
-            <button
-              className="hard-button"
-              onClick={() => setStockfishDifficulty(10)}
-            >
-              <FontAwesomeIcon icon={faChessKing} /> Hard
-            </button>
-          </div>
+        <div className="left-content">
+          <List
+            rootClassName="train-header"
+            header={
+              <h2>
+                <FontAwesomeIcon icon={faChartBar} /> Game Information
+              </h2>
+            }
+            bordered
+            className="custom-list"
+            dataSource={[
+              {
+                title: "Current Turn",
+                icon: game.turn() === "w" ? faChessPawn : faChessPawn,
+                color: game.turn() === "w" ? "white" : "black",
+                text: game.turn() === "w" ? "White" : "Black",
+              },
+              {
+                title: "Check",
+                icon: game.isCheck() ? faCheck : faTimes,
+                color: game.isCheck() ? "#52c41a" : "#f5222d",
+                text: game.isCheck() ? "Check!" : "No Check",
+              },
+              {
+                title: "CheckMate",
+                icon: game.isCheckmate() ? faCheck : faTimes,
+                color: game.isCheckmate() ? "#fa8c16" : "#f5222d",
+                text: game.isCheckmate() ? "Checkmate!" : "No Checkmate",
+              },
+              {
+                title: "Draw",
+                icon: game.isDraw() ? faCheck : faTimes,
+                color: game.isDraw() ? "#fa8c16" : "#f5222d",
+                text: game.isDraw() ? "Draw!" : "No Draw",
+              },
+              {
+                title: "Game Over",
+                icon: game.isGameOver() ? faCheck : faTimes,
+                color: game.isGameOver() ? "#fa8c16" : "#f5222d",
+                text: game.isGameOver() ? "Game Over!" : "Not Over",
+              },
+            ]}
+            renderItem={(item) => (
+              <List.Item className="custom-list-item">
+                <List.Item.Meta
+                  avatar={
+                    <FontAwesomeIcon icon={item.icon} color={item.color} />
+                  }
+                  title={
+                    <span className="custom-list-item-title">{item.title}</span>
+                  }
+                  description={
+                    <span className="custom-list-item-text">{item.text}</span>
+                  }
+                />
+              </List.Item>
+            )}
+            style={{
+              backgroundColor: "#b08c64",
+              margin: "auto",
+              maxWidth: "fit-content",
+            }}
+          />
         </div>
       </div>
     </div>

@@ -6,6 +6,11 @@
   -ms-overflow-style: none;
   box-sizing: border-box;
 }
+
+.piece {
+  transition: transform 0.3s ease-in-out;
+}
+
 .grey-dot {
   position: absolute;
   width: 20px;
@@ -34,15 +39,9 @@
 .chess-container {
   color: white;
   max-width: 100%;
-  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.left-content,
-.right-content {
-  flex: 0.35;
 }
 
 .border {
@@ -65,30 +64,15 @@
   border-left: 5px solid rgba(181, 136, 99, 255);
   border-right: 5px solid rgba(181, 136, 99, 255);
   border-bottom: 5px solid rgba(181, 136, 99, 255);
+  border-top: 5px solid rgba(181, 136, 99, 255);
 }
 
 .react-chessboard-piece {
   font-size: 3em;
 }
 
-.left-content {
-  background-color: rgba(181, 136, 99, 255);
-  margin-left: 15px;
-  display: flex;
-  justify-content: center;
-  border: 5px solid rgba(84, 84, 90, 0.4);
-  font-size: 1.3em;
-  font-weight: bold;
-  font-family: "Times New Roman", Times, serif;
-  height: auto;
-  width: auto;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
 .right-content {
   background-color: rgba(181, 136, 99, 255);
-  margin-left: 15px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -96,8 +80,6 @@
   font-size: 1.3em;
   font-weight: bold;
   font-family: "Times New Roman", Times, serif;
-  height: auto;
-  width: auto;
   margin-top: auto;
   margin-bottom: auto;
 }
@@ -106,7 +88,47 @@
 h2 {
   font-size: 1.2em;
 }
+.custom-list {
+  width: 100%;
+}
 
+.custom-list-item {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.custom-list-item:last-child {
+  border-bottom: none;
+}
+
+.custom-list-item-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+
+.custom-list-item-text {
+  font-size: 14px;
+  color: white;
+}
+
+.custom-list-item-title,
+.custom-list-item-text {
+  margin: 0;
+  display: block;
+}
+.train-header {
+  color: white;
+  font-size: 1.5em;
+}
+.ant-avatar {
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.left-content {
+  margin-top: 5%;
+}
 .icon-below {
   margin-left: 30%;
   font-size: 3.7em;
@@ -115,12 +137,6 @@ h2 {
 .right-content {
   flex-direction: column;
   align-self: flex-start;
-}
-
-.reset-button {
-  font-size: 2.7em;
-  font-weight: 900;
-  margin-top: 10%;
 }
 
 .right-quote {
@@ -184,12 +200,10 @@ h2 {
   }
   .chessboard-container {
     width: 100%;
-    padding: 10px;
     flex-direction: column;
   }
   .chessboard-wrapper {
     width: 80%;
-    margin: 0 auto;
   }
   .right-content {
     display: none;
@@ -245,10 +259,6 @@ h2 {
     padding: 10px;
     flex-direction: column;
   }
-  .chessboard-wrapper {
-    width: 57%;
-    margin: 0 auto;
-  }
   .right-content {
     display: none;
   }
@@ -273,25 +283,26 @@ h2 {
   }
 
   .chessboard-container {
-    flex-grow: 1;
+    flex-grow: 0.6;
   }
 
   .chessboard-wrapper,
   .last-move {
     width: 100%;
-    max-width: 35vw;
-    margin: 0 auto;
+    max-width: 40vw;
+    margin-left: 10%;
     overflow-x: auto;
   }
 
   .left-content {
     display: flex;
+    margin-right: 20%;
     justify-content: center;
     align-items: center;
     font-size: 2vh;
   }
   .right-content {
-    margin-right: 15px;
+    margin-right: 10%;
     padding-bottom: 0;
   }
 
@@ -364,7 +375,8 @@ h2 {
   flex-direction: column;
 }
 
-.right-puzzle button {
+.right-puzzle button,
+.turn-indicator {
   margin-bottom: 5%;
   display: flex;
   align-items: center;

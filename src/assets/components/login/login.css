@@ -6,10 +6,14 @@
   width: 80%;
   margin: auto;
   max-width: 475px;
-  min-height: 600px;
+  min-height: 700px;
   position: relative;
   background-color: #2c3447;
-  background-image: linear-gradient(-25deg, rgba(0, 0, 0, 0.2) 0%, rgb(137, 147, 158) 100%);
+  background-image: linear-gradient(
+    -25deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgb(137, 147, 158) 100%
+  );
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 .login-html {
@@ -18,7 +22,11 @@
   height: 100%;
   position: absolute;
   padding: 90px 70px 50px 70px;
-  background-image: linear-gradient(-25deg, rgba(0, 0, 0, 0.2) 0%, rgba(22, 22, 22, 255) 100%);
+  background-image: linear-gradient(
+    -25deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(22, 22, 22, 255) 100%
+  );
   box-shadow: inset -1.4px -1.4px 2px rgba(0, 0, 0, 0.3);
   opacity: 1;
 }
@@ -85,7 +93,7 @@
   padding: 15px 20px;
   border-radius: 25px;
 }
-.login-form .group input[data-type='password'] {
+.login-form .group input[data-type="password"] {
   color: black;
   -webkit-text-security: circle;
 }
@@ -105,12 +113,16 @@
 }
 .login-form .group label .icon:before,
 .login-form .group label .icon:after {
-  content: '';
+  content: "";
   width: 10px;
   height: 2px;
   background: white;
   position: absolute;
   transition: all 0.2s ease-in-out 0s;
+}
+
+.changed-size {
+  font-size: 0.8em;
 }
 .login-form .group label .icon:before {
   left: 3px;
@@ -136,7 +148,13 @@
 .login-form .group .check:checked + label .icon:after {
   transform: scale(1) rotate(-45deg);
 }
-.login-html .sign-in:checked + .tab + .sign-up + .tab + .login-form .sign-in-htm {
+.login-html
+  .sign-in:checked
+  + .tab
+  + .sign-up
+  + .tab
+  + .login-form
+  .sign-in-htm {
   transform: rotate(0);
 }
 .login-html .sign-up:checked + .tab + .login-form .sign-up-htm {

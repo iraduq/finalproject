@@ -2,12 +2,72 @@ import { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import { faHouse } from "@fortawesome/free-solid-svg-icons";
+import { faChessPawn, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { Chess } from "chess.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert";
 import moveSelf from "../constants/sounds/move-self.mp3";
+import { Button, Modal } from "antd";
+import { UserOutlined, CrownOutlined } from "@ant-design/icons";
+type PlayerColor = "w" | "b";
+
+interface WelcomeModalProps {
+  currentPlayer: PlayerColor;
+}
+
+const WelcomeModal: React.FC<WelcomeModalProps> = ({ currentPlayer }) => {
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOpen(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleOk = () => {
+    setOpen(false);
+  };
+
+  return (
+    <Modal
+      title="Welcome to Chess Puzzle!"
+      open={open}
+      footer={[
+        <Button key="ok" type="primary" onClick={handleOk}>
+          Got it
+        </Button>,
+      ]}
+      centered
+      closable={false}
+      onCancel={handleOk}
+    >
+      <p
+        style={{
+          marginBottom: 16,
+          fontSize: "1.2em",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        In this game, you are playing as{" "}
+        {currentPlayer === "w" ? (
+          <>
+            <CrownOutlined style={{ marginLeft: 5, color: "gold" }} />
+            White
+          </>
+        ) : (
+          <>
+            <UserOutlined style={{ marginLeft: 5, color: "black" }} />
+            Black
+          </>
+        )}
+        .
+      </p>
+    </Modal>
+  );
+};
 
 const PuzzleGame = () => {
   const [pgn, setPgn] = useState("");
@@ -58,6 +118,7 @@ const PuzzleGame = () => {
       chess.loadPgn(pgn);
       setGame(chess);
       setFen(chess.fen());
+
       setCurrentPlayer(chess.turn() as "w" | "b");
     }
   }, [pgn]);
@@ -224,11 +285,16 @@ const PuzzleGame = () => {
   };
 
   const handleShowSolution = async () => {
-    try {
-      if (!game) return;
+    if (!game || solution.length === 0) return;
+
+    game.loadPgn(pgn);
+    setCurrentSolutionIndex(0);
+
+    setTimeout(() => {
+      setFen(game.fen());
 
       const makeNextMove = (index: number, solution: string[]) => {
-        if (index === solution.length - 1) {
+        if (index === solution.length) {
           playMoveSelfSound();
           Swal({
             title: "Puzzle Completed",
@@ -241,7 +307,8 @@ const PuzzleGame = () => {
         const nextMove = solution[index];
         const sourceSquare = nextMove.substring(0, 2);
         const targetSquare = nextMove.substring(2, 4);
-        const promotion = nextMove.substring(4, 5);
+        const promotion =
+          nextMove.length === 5 ? nextMove.substring(4, 5) : undefined;
 
         setTimeout(() => {
           const moveResult = game.move({
@@ -259,18 +326,20 @@ const PuzzleGame = () => {
         }, 1000);
       };
 
-      if (currentSolutionIndex !== 0) {
-        Swal({
-          title: "Error",
-          text: "Please reset the game.",
-          icon: "error",
-        });
+      const firstMove = solution[0];
+      const firstSourceSquare = firstMove.substring(0, 2);
+      const firstTargetSquare = firstMove.substring(2, 4);
+      const firstMoveResult = game.move({
+        from: firstSourceSquare,
+        to: firstTargetSquare,
+      });
+      if (!firstMoveResult) {
+        makeNextMove(0, solution);
       } else {
+        game.undo();
         makeNextMove(0, solution);
       }
-    } catch (error) {
-      console.error("Error handling show solution:", error);
-    }
+    }, 1000);
   };
 
   if (loading) {
@@ -321,6 +390,7 @@ const PuzzleGame = () => {
 
   const handleResetGame = async () => {
     setLoading(true);
+    setPuzzleCompleted(false);
 
     try {
       const response = await fetch("https://lichess.org/api/puzzle/daily");
@@ -352,6 +422,7 @@ const PuzzleGame = () => {
 
   return (
     <div className="container-online-puzzle">
+      <WelcomeModal currentPlayer={currentPlayer as PlayerColor} />
       <div className="wrapper-online">
         <div className="left-area-online">
           <div className="header-online">
@@ -385,6 +456,26 @@ const PuzzleGame = () => {
       <div className="right-side">
         <div className="right-puzzle">
           <div className="next-solution">
+            <div className="turn-indicator">
+              {game?.turn() === "w" ? (
+                <>
+                  <FontAwesomeIcon
+                    icon={faChessPawn}
+                    style={{ color: "white", fontSize: "30px" }}
+                  />
+                  <span>White</span>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon
+                    icon={faChessPawn}
+                    style={{ color: "black", fontSize: "30px" }}
+                  />
+                  <span>Black</span>
+                </>
+              )}
+            </div>
+
             <button onClick={handleNextSolution}>
               <svg
                 className="css-i6dzq1"

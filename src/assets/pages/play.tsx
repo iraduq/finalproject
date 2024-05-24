@@ -9,19 +9,6 @@ import { Chess } from "chess.js";
 import useWebSocket from "react-use-websocket";
 import gameStartSound from "../constants/sounds/game-start.mp3";
 import moveSelf from "../constants/sounds/move-self.mp3";
-
-import {
-  faChessPawn,
-  faChessKing,
-  faExclamationCircle,
-  faSkullCrossbones,
-  faHandshake,
-  faTrophy,
-  faCheck,
-  faTimes,
-  faChartBar,
-} from "@fortawesome/free-solid-svg-icons";
-
 import Swal from "sweetalert";
 
 const OnlineGame = () => {
@@ -45,7 +32,11 @@ const OnlineGame = () => {
   const [jwtReceived, setJwtReceived] = useState(false);
   const [playerColor, setPlayerColor] = useState("");
 
-  const handleMove = (sourceSquare: string, targetSquare: string) => {
+  const handleMove = (
+    sourceSquare: string,
+    targetSquare: string,
+    piece: string
+  ) => {
     if (game.turn() !== playerColor[0]) {
       return false;
     }
@@ -53,7 +44,7 @@ const OnlineGame = () => {
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,
-      promotion: "q",
+      promotion: piece.slice(-1).toLowerCase(),
     });
 
     if (move) {
@@ -78,9 +69,8 @@ const OnlineGame = () => {
     return false;
   };
 
-  console.log(localStorage.getItem("token"));
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://172.16.1.62:8000/ws/${localStorage.getItem("token")}`,
+    `ws://172.16.1.39:8000/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -93,9 +83,9 @@ const OnlineGame = () => {
     if (!jwtReceived && lastMessage && typeof lastMessage.data === "string") {
       try {
         const receivedData = JSON.parse(lastMessage.data);
+        console.log(receivedData.white_player_jwt);
+        console.log(receivedData.black_player_jwt);
         if (receivedData.white_player_jwt && receivedData.black_player_jwt) {
-          console.log("White Player JWT:", receivedData.white_player_jwt);
-          console.log("Black Player JWT:", receivedData.black_player_jwt);
           setJwtReceived(true);
           const currentPlayerJwt = localStorage.getItem("token");
           if (receivedData.white_player_jwt === currentPlayerJwt) {
@@ -134,24 +124,54 @@ const OnlineGame = () => {
 
   useEffect(() => {
     if (game.isGameOver()) {
-      let message = "";
       if (game.isDraw()) {
-        message = "Draw! The game is over.";
-      } else if (game.isStalemate()) {
-        message = "Stalemate! The game is over.";
-      } else if (game.isThreefoldRepetition()) {
-        message = "Threefold repetition! The game is over.";
-      } else if (game.isInsufficientMaterial()) {
-        message = "Insufficient material! The game is over.";
-      } else {
-        message = "Congratulations! You won the game!";
+        Swal({
+          title: "Draw!",
+          text: "The Game is Over",
+          icon: "info",
+        });
       }
-      Swal({
-        title: message,
-        icon: "info",
-      });
+      if (game.isStalemate()) {
+        Swal({
+          title: "Draw!",
+          text: "The Game is Over",
+          icon: "info",
+        });
+      }
+      if (game.isThreefoldRepetition()) {
+        Swal({
+          title: "Draw!",
+          text: "The Game is Over",
+          icon: "info",
+        });
+      }
+      if (game.isInsufficientMaterial()) {
+        Swal({
+          title: "Draw!",
+          text: "The Game is Over",
+          icon: "info",
+        });
+      }
+
+      if (game.isCheckmate()) {
+        if (game.turn() === "w") {
+          if (playerColor === game.turn()) {
+            Swal({
+              title: "Checkmate!",
+              text: "You lost the game!",
+              icon: "error",
+            });
+          } else {
+            Swal({
+              title: "Checkmate!",
+              text: "You won the game!",
+              icon: "error",
+            });
+          }
+        }
+      }
     }
-  }, [game]);
+  }, [game, playerColor]);
 
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
     console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
@@ -164,11 +184,6 @@ const OnlineGame = () => {
       console.log("Legal moves for the picked up piece:");
       pieceMoves.forEach((move, index) => {
         console.log(`Move ${index + 1}:`);
-        console.log(`From: ${move.from}`);
-        console.log(`To: ${move.to}`);
-        console.log(`Piece: ${move.piece}`);
-        console.log(`Flags: ${move.flags}`);
-        console.log(`San: ${move.san}`);
 
         const targetSquareElement = document.querySelector<HTMLElement>(
           `[data-square="${move.to}"]`
@@ -212,16 +227,14 @@ const OnlineGame = () => {
             <Chessboard
               id="online-game"
               position={game.fen()}
-              onPieceDrop={(sourceSquare: string, targetSquare: string) =>
-                handleMove(sourceSquare, targetSquare)
-              }
+              onPieceDrop={(
+                sourceSquare: string,
+                targetSquare: string,
+                piece: string
+              ) => handleMove(sourceSquare, targetSquare, piece)}
               boardOrientation={boardOrientation || undefined}
-              allowDrag={({ piece }: { piece: string }) =>
-                playerColor ? piece[0] === playerColor[0] : false
-              }
-              arePremovesAllowed={true}
               onPieceDragBegin={handlePieceDragBegin}
-              areArrowsAllowed={true}
+              promotionDialogVariant={"vertical"}
             />
 
             {isProcessingMove && (
@@ -230,54 +243,7 @@ const OnlineGame = () => {
           </div>
         </div>
         <div className="right-area-online">
-          <div className="game-info-container">
-            <FontAwesomeIcon icon={faChartBar} size="2x" />
-            <h2>Game Information</h2>
-            <ul>
-              <li>
-                <span>
-                  <FontAwesomeIcon icon={faChessKing} /> Current Turn:{" "}
-                  {game.turn() === "w" ? (
-                    <FontAwesomeIcon icon={faChessPawn} color="white" />
-                  ) : (
-                    <FontAwesomeIcon icon={faChessPawn} color="black" />
-                  )}
-                </span>
-              </li>
-              <li>
-                <FontAwesomeIcon icon={faExclamationCircle} /> Check:{" "}
-                {game.isCheck() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-              <li>
-                <FontAwesomeIcon icon={faSkullCrossbones} /> Checkmate:{" "}
-                {game.isCheckmate() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-              <li>
-                <FontAwesomeIcon icon={faHandshake} /> Draw:{" "}
-                {game.isDraw() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-              <li>
-                <FontAwesomeIcon icon={faTrophy} /> Game Over:{" "}
-                {game.isGameOver() ? (
-                  <FontAwesomeIcon icon={faCheck} />
-                ) : (
-                  <FontAwesomeIcon icon={faTimes} />
-                )}
-              </li>
-            </ul>
-          </div>
+          <div className="game-info-container"></div>
         </div>
       </div>
     </div>
