@@ -5,6 +5,9 @@
   position: relative;
 }
 
+.game-info-container {
+  background-color: transparent;
+}
 .wrapper-online {
   display: flex;
   align-items: center;

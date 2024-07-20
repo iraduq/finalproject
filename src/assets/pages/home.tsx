@@ -30,9 +30,25 @@ const Statistics = ({ stats }: { stats: Stats }) => {
       }}
     >
       <Card
-        title="Platform Statistics"
+        title={
+          <span
+            style={{
+              textAlign: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            Platform Statistics
+          </span>
+        }
         bordered={false}
-        style={{ width: 300, backgroundColor: "#ab835d", color: "white" }}
+        style={{
+          width: 300,
+          backgroundColor: "transparent",
+          color: "white",
+          alignContent: "center",
+        }}
       >
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={12}>
@@ -89,7 +105,7 @@ const MainPage = () => {
 
     const fetchStats = async () => {
       try {
-        const response = await fetch("http://172.16.1.39:8000/server/data", {
+        const response = await fetch("http://172.16.1.70:8000/server/data", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -155,7 +171,9 @@ const MainPage = () => {
           )}
         </div>
       </div>
-      <Footer />
+      <div className="footer-side">
+        <Footer />
+      </div>
     </div>
   );
 };

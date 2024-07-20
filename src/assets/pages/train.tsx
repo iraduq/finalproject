@@ -5,7 +5,10 @@ import Background from "../constants/background/background.js";
 import { Move } from "chess.js";
 import "../styles/train.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Flip } from "react-toastify";
 import { List } from "antd";
+import wrongSound from "../constants/sounds/wrong.mp3";
+import NotificationSound from "../constants/sounds/notification.mp3";
 
 import {
   faChessPawn,
@@ -45,9 +48,7 @@ function ChessComponent() {
   }
 
   const playIllegalMoveSound = () => {
-    const illegalMoveSound = new Audio(
-      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/illegal.mp3"
-    );
+    const illegalMoveSound = new Audio(wrongSound);
     illegalMoveSound.play().catch((error) => {
       console.error("Error playing illegal move sound:", error);
     });
@@ -207,8 +208,12 @@ function ChessComponent() {
         return false;
       }
     } catch (error) {
+      toast.dismiss();
       playIllegalMoveSound();
-      toast.error("Illegal move!");
+      toast.error("Illegal move!", {
+        transition: Flip,
+        autoClose: 200,
+      });
       return false;
     }
   };
@@ -244,12 +249,14 @@ function ChessComponent() {
   }, []);
 
   const playGameEndSound = () => {
-    const gameEndSound = new Audio(
-      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-end.mp3"
-    );
-    gameEndSound.play().catch((error) => {
-      console.error("Error playing game end sound:", error);
-    });
+    const delay = 500;
+    setTimeout(() => {
+      const gameEndSound = new Audio(NotificationSound);
+      gameEndSound.volume = 0.1;
+      gameEndSound.play().catch((error) => {
+        console.error("Error playing game end sound:", error);
+      });
+    }, delay);
   };
 
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
@@ -323,8 +330,9 @@ function ChessComponent() {
           <List
             rootClassName="train-header"
             header={
-              <h2>
-                <FontAwesomeIcon icon={faChartBar} /> Game Information
+              <h2 className="list-header">
+                <FontAwesomeIcon icon={faChartBar} className="header-icon" />{" "}
+                Game Information
               </h2>
             }
             bordered
@@ -333,7 +341,7 @@ function ChessComponent() {
               {
                 title: "Current Turn",
                 icon: game.turn() === "w" ? faChessPawn : faChessPawn,
-                color: game.turn() === "w" ? "white" : "black",
+                color: game.turn() === "w" ? "#000000" : "#ffffff",
                 text: game.turn() === "w" ? "White" : "Black",
               },
               {
@@ -365,7 +373,11 @@ function ChessComponent() {
               <List.Item className="custom-list-item">
                 <List.Item.Meta
                   avatar={
-                    <FontAwesomeIcon icon={item.icon} color={item.color} />
+                    <FontAwesomeIcon
+                      icon={item.icon}
+                      color={item.color}
+                      className="item-icon"
+                    />
                   }
                   title={
                     <span className="custom-list-item-title">{item.title}</span>
@@ -380,6 +392,7 @@ function ChessComponent() {
               backgroundColor: "#b08c64",
               margin: "auto",
               maxWidth: "fit-content",
+              borderRadius: "8px",
             }}
           />
         </div>

@@ -34,7 +34,7 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       if (loginInput.email !== "" && loginInput.password !== "") {
-        const url = `http://172.16.1.39:8000/login`;
+        const url = `http://172.16.1.22:8000/login`;
         const response = await axios.post(url, {
           email: loginInput.email,
           password: loginInput.password,
@@ -61,7 +61,7 @@ const LoginForm = () => {
         registerInput.password === registerInput.repeatPassword &&
         emailValid
       ) {
-        const url = `http://172.16.1.39:8000/create_user`;
+        const url = `http://172.16.1.22:8000/create_user`;
         const response = await axios.post(url, {
           username: registerInput.username,
           password: registerInput.password,

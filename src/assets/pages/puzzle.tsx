@@ -10,6 +10,8 @@ import Swal from "sweetalert";
 import moveSelf from "../constants/sounds/move-self.mp3";
 import { Button, Modal } from "antd";
 import { UserOutlined, CrownOutlined } from "@ant-design/icons";
+import wrongSound from "../constants/sounds/wrong.mp3";
+
 type PlayerColor = "w" | "b";
 
 interface WelcomeModalProps {
@@ -54,7 +56,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ currentPlayer }) => {
         In this game, you are playing as{" "}
         {currentPlayer === "w" ? (
           <>
-            <CrownOutlined style={{ marginLeft: 5, color: "gold" }} />
+            <CrownOutlined style={{ marginLeft: 5, color: "grey" }} />
             White
           </>
         ) : (
@@ -79,9 +81,7 @@ const PuzzleGame = () => {
   const [orientation, setOrientation] = useState<"white" | "black">("black");
 
   const playIllegalMoveSound = () => {
-    const illegalMoveSound = new Audio(
-      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/illegal.mp3"
-    );
+    const illegalMoveSound = new Audio(wrongSound);
     illegalMoveSound.play().catch((error) => {
       console.error("Error playing illegal move sound:", error);
     });

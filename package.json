@@ -41,6 +41,7 @@
     "stockfish.js": "^10.0.2",
     "styled-components": "^6.1.8",
     "sweetalert": "^2.1.2",
+    "sweetalert2": "^11.12.3",
     "typed.js": "^2.1.0",
     "yup": "^1.4.0"
   },

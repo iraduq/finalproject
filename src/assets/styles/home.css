@@ -4,7 +4,12 @@
   min-height: 100vh;
 }
 
+.footer-side {
+  margin-top: 1%;
+}
+
 .content-container {
+  height: 65vh;
   display: flex;
   flex-grow: 1;
   margin-bottom: 3%;
@@ -24,5 +29,5 @@
 
 .img-main-table {
   max-width: 100%;
-  height: auto;
+  height: 100%;
 }

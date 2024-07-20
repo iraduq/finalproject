@@ -5,16 +5,16 @@ import {
   LogoutOutlined,
   QuestionCircleOutlined,
   PlayCircleOutlined,
-  BellOutlined,
   MailOutlined,
   InfoCircleOutlined,
-  MessageOutlined,
-  TrophyOutlined,
   TeamOutlined,
+  TrophyOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import "./menu.css";
 
 const { Sider } = Layout;
+const { SubMenu } = AntMenu;
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
@@ -25,60 +25,61 @@ const Menu: React.FC = () => {
   };
 
   const items = [
-    null,
     {
-      label: "Play Online",
+      label: "Play",
       key: "play",
-      icon: <PlayCircleOutlined spin />,
-      onClick: () => navigate("/online"),
+      icon: <PlayCircleOutlined />,
+      children: [
+        {
+          label: "Play Online",
+          key: "play_online",
+          icon: <PlayCircleOutlined />,
+          onClick: () => navigate("/online"),
+        },
+        {
+          label: "Play vs Bot",
+          key: "play_bot",
+          icon: <BellOutlined />,
+          onClick: () => navigate("/train"),
+        },
+        {
+          label: "Puzzle",
+          key: "puzzle",
+          icon: <TrophyOutlined />,
+          onClick: () => navigate("/puzzle"),
+        },
+      ],
     },
+
     {
-      label: "Play vs Bot",
-      key: "train",
-      icon: <BellOutlined spin />,
-      onClick: () => navigate("/train"),
-    },
-    {
-      label: "Puzzle",
-      key: "puzzle",
-      icon: <TrophyOutlined spin />,
-      onClick: () => navigate("/puzzle"),
+      label: "Learn",
+      key: "learn",
+      icon: <QuestionCircleOutlined />,
+      onClick: () => navigate("/tutorial"),
     },
     {
       label: "Profile",
       key: "profile",
-      icon: <TeamOutlined spin />,
+      icon: <TeamOutlined />,
       onClick: () => navigate("/profile"),
-    },
-    {
-      label: "Learn",
-      key: "learn",
-      icon: <QuestionCircleOutlined spin />,
-      onClick: () => navigate("/tutorial"),
     },
     {
       label: "Contact",
       key: "contact",
-      icon: <MailOutlined spin />,
+      icon: <MailOutlined />,
       onClick: () => navigate("/contact"),
     },
     {
       label: "About Us",
       key: "about",
-      icon: <InfoCircleOutlined spin />,
+      icon: <InfoCircleOutlined />,
       onClick: () => navigate("/about"),
     },
 
     {
-      label: "FAQ",
-      key: "faq",
-      icon: <MessageOutlined spin />,
-      onClick: () => navigate("/review"),
-    },
-    {
       label: "Log Out",
       key: "logout",
-      icon: <LogoutOutlined spin />,
+      icon: <LogoutOutlined />,
       onClick: handleLogout,
     },
   ];
@@ -98,8 +99,40 @@ const Menu: React.FC = () => {
           mode="inline"
           style={{ backgroundColor: "transparent", borderRight: "none" }}
         >
-          {items.map((item, index) =>
-            item ? (
+          {items.map((item) =>
+            item.children ? (
+              <SubMenu
+                key={item.key}
+                title={item.label}
+                icon={item.icon}
+                className="submenu-right"
+                popupClassName="submenu-popup"
+                style={{
+                  fontSize: "18px",
+                  color: "#ffffff",
+                  margin: "10px 0",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                }}
+              >
+                {item.children.map((child) => (
+                  <AntMenu.Item
+                    key={child.key}
+                    icon={child.icon}
+                    onClick={child.onClick}
+                    style={{
+                      fontSize: "16px",
+                      color: "#ffffff",
+                      margin: "10px 0",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {child.label}
+                  </AntMenu.Item>
+                ))}
+              </SubMenu>
+            ) : (
               <AntMenu.Item
                 key={item.key}
                 icon={item.icon}
@@ -114,8 +147,6 @@ const Menu: React.FC = () => {
               >
                 {item.label}
               </AntMenu.Item>
-            ) : (
-              <div key={`spacer-${index}`} style={{ height: "20px" }} />
             )
           )}
         </AntMenu>

@@ -1,21 +1,26 @@
 import React, { useEffect } from "react";
 import emailjs from "emailjs-com";
-import Background from "../constants/background/background";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Background from "../constants/background/background.tsx";
+import { faEnvelope, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import {
-  faEnvelope,
-  faHouse,
-  faPaperPlane,
-} from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
+  faGithub,
+  faCodepen,
+  faTwitter,
+  faInstagram,
+} from "@fortawesome/free-brands-svg-icons";
 import Typed from "typed.js";
+import { Form, Input, Button, Typography, Row, Col, Divider, Card } from "antd";
 import "../styles/contact.css";
+import Swal from "sweetalert2";
+
+const { Title } = Typography;
 
 const ContactForm: React.FC = () => {
   useEffect(() => {
     const messages = [
-      "We're thrilled to hear from you! Please send us a message with your inquiries, suggestions, or feedback. Our team is here to assist you in any way we can.",
-      "Fill out the form below with your information and we'll get back to you.",
+      "We're thrilled to hear from you! Please send us a message!",
+      "Fill out the form below with your information. ",
       "Thank you for your interest and for being a part of our community!",
       "We'd love to hear from you!",
     ];
@@ -23,7 +28,10 @@ const ContactForm: React.FC = () => {
     const typed = new Typed("#typed-message", {
       strings: messages,
       typeSpeed: 50,
+      backSpeed: 25,
+      backDelay: 1000,
       loop: true,
+      showCursor: false,
     });
 
     return () => {
@@ -31,23 +39,15 @@ const ContactForm: React.FC = () => {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const target = e.target as typeof e.target & {
-      name: { value: string };
-      email: { value: string };
-      message: { value: string };
-    };
-
-    const playerName = target.name.value;
-    const playerEmail = target.email.value;
-    const playerMessage = target.message.value;
-
+  const handleSubmit = (values: {
+    name: string;
+    email: string;
+    message: string;
+  }) => {
     const emailData = {
-      player_name: playerName,
-      player_message: playerMessage,
-      player_email: playerEmail,
+      player_name: values.name,
+      player_message: values.message,
+      player_email: values.email,
     };
 
     emailjs
@@ -57,118 +57,146 @@ const ContactForm: React.FC = () => {
         emailData,
         "TPTojqt9HG5FpSSaJ"
       )
-      .then((result) => {
-        console.log("Email sent successfully:", result.text);
-        const statusElement = document.getElementById("status");
-        if (statusElement) {
-          statusElement.innerText = "Success ✅";
-        }
+      .then(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Email Sent!",
+          text: "Your message has been sent successfully.",
+          confirmButtonText: "OK",
+        });
       })
-      .catch((error) => {
-        console.error("Email send failed:", error.text);
-        const statusElement = document.getElementById("status");
-        if (statusElement) {
-          statusElement.innerText = "Error";
-        } else {
-          console.error("Status element not found.");
-        }
+      .catch(() => {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong. Please try again later.",
+          confirmButtonText: "OK",
+        });
       });
-
-    e.currentTarget.reset();
   };
 
   return (
     <div className="contact-div">
-      <div className="header-online">
-        <Link to="/main">
-          <FontAwesomeIcon icon={faHouse} />
-          <span className="icon-spacing">HOME</span>
-        </Link>
-      </div>
+      <Background></Background>
       <div className="typed-message" id="typed-message"></div>
-      <div className="row">
-        <form
-          id="form"
-          className="container-container-form"
-          onSubmit={handleSubmit}
-        >
-          <h3>
-            <FontAwesomeIcon icon={faEnvelope} /> CONTACT
-          </h3>
-          <input
-            className="input-field"
-            type="text"
-            placeholder="&#xf0c0; Name"
-            name="name"
-          />
-          <Background></Background>
+      <div className="contact-content">
+        <Row justify="center" className="contact-row">
+          <Col xs={24} md={16} lg={12}>
+            <Card className="contact-card">
+              <Title level={3} className="contact-title">
+                <FontAwesomeIcon icon={faEnvelope} /> CONTACT
+              </Title>
+              <Form
+                id="form"
+                onFinish={handleSubmit}
+                layout="vertical"
+                className="contact-form"
+              >
+                <Form.Item
+                  name="name"
+                  label={<span style={{ fontWeight: 600 }}>Name</span>}
+                  rules={[
+                    { required: true, message: "Please enter your name!" },
+                  ]}
+                >
+                  <Input placeholder="Enter your name" />
+                </Form.Item>
 
-          <input
-            className="input-field"
-            type="text"
-            placeholder="&#xf0e0; Email"
-            name="email"
-          />
-          <textarea
-            className="input-field textarea-field"
-            placeholder="&#x1F5E8; Message"
-            name="message"
-          ></textarea>
+                <Form.Item
+                  name="email"
+                  label={<span style={{ fontWeight: 600 }}>Email</span>}
+                  rules={[
+                    {
+                      required: true,
+                      type: "email",
+                      message: "Please enter a valid email!",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Enter your email" />
+                </Form.Item>
 
-          <button className="submit-button" type="submit">
-            <FontAwesomeIcon icon={faPaperPlane} /> Send
-          </button>
-        </form>
+                <Form.Item
+                  name="message"
+                  label={<span style={{ fontWeight: 600 }}>Message</span>}
+                  rules={[
+                    { required: true, message: "Please enter your message!" },
+                  ]}
+                >
+                  <Input.TextArea placeholder="Enter your message" rows={4} />
+                </Form.Item>
 
-        <div className="direct-contact-container">
-          <ul className="contact-list">
-            <li className="list-item">
-              <i className="fa fa-map-marker fa-2x"></i>
-              <span className="contact-text place">Suceava</span>
-            </li>
-            <li className="list-item">
-              <i className="fa fa-phone fa-2x"></i>
-              <span className="contact-text phone">
-                <a href="tel:1-212-555-5555" title="Give me a call">
-                  0747043190
-                </a>
-              </span>
-            </li>
-            <li className="list-item">
-              <i className="fa fa-envelope fa-2x"></i>
-              <span className="contact-text gmail">
-                <a href="mailto:#" title="Send me an email">
-                  chess.ro
-                </a>
-              </span>
-            </li>
-          </ul>
-          <hr />
-          <ul className="social-media-list">
-            <li>
-              <a href="#" target="_blank" className="contact-icon">
-                <i className="fa fa-github" aria-hidden="true"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" target="_blank" className="contact-icon">
-                <i className="fa fa-codepen" aria-hidden="true"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" target="_blank" className="contact-icon">
-                <i className="fa fa-twitter" aria-hidden="true"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" target="_blank" className="contact-icon">
-                <i className="fa fa-instagram" aria-hidden="true"></i>
-              </a>
-            </li>
-          </ul>
-          <hr />
-          <div className="copyright">&copy; ALL RIGHTS RESERVED</div>
-        </div>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="submit-button"
+                    size="large"
+                  >
+                    <FontAwesomeIcon icon={faPaperPlane} /> Send
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
+
+        <Divider />
+
+        <Row justify="center">
+          <Col xs={24} md={16} lg={12}>
+            <div className="contact-info">
+              <Divider />
+
+              <ul className="social-media-list">
+                <li>
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-icon"
+                  >
+                    <FontAwesomeIcon icon={faGithub} size="2x" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-icon"
+                  >
+                    <FontAwesomeIcon icon={faCodepen} size="2x" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-icon"
+                  >
+                    <FontAwesomeIcon icon={faTwitter} size="2x" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-icon"
+                  >
+                    <FontAwesomeIcon icon={faInstagram} size="2x" />
+                  </a>
+                </li>
+              </ul>
+
+              <Divider />
+
+              <div className="copyright">&copy; ALL RIGHTS RESERVED</div>
+            </div>
+          </Col>
+        </Row>
       </div>
     </div>
   );

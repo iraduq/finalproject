@@ -9,7 +9,7 @@ import MainPage from "../src/assets/pages/home.tsx";
 import LoginPage from "../src/assets/pages/login.tsx";
 import TrainingPage from "../src/assets/pages/train.tsx";
 import Tutorial from "../src/assets/pages/tutorial.tsx";
-import CustomerReview from "../src/assets/pages/faq.tsx";
+
 import AboutComponent from "../src/assets/pages/about.tsx";
 import OnlineGame from "../src/assets/pages/play";
 import ContactPage from "../src/assets/pages/contact.tsx";
@@ -50,12 +50,7 @@ const App: React.FC = () => {
           path="/tutorial"
           element={<ProtectedRoute element={<Tutorial />} path="/tutorial" />}
         />
-        <Route
-          path="/review"
-          element={
-            <ProtectedRoute element={<CustomerReview />} path="/review" />
-          }
-        />
+
         <Route
           path="/profile"
           element={<ProtectedRoute element={<CustomTable />} path="/profile" />}

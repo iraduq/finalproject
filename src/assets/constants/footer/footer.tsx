@@ -28,7 +28,7 @@ function Footer() {
       </div>
       <ul className="footer__nav">
         <li className="nav__item">
-          <h2 className="nav__title">
+          <h2 className="nav__title__second">
             <FontAwesomeIcon icon={faPlay} /> Media
           </h2>
 
@@ -115,30 +115,6 @@ function Footer() {
             </li>
             <li>
               <a
-                href="https://www.youtube.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div className="social-icon">
-                  <FontAwesomeIcon icon={faChess} />
-                  <span>YouTube</span>
-                </div>
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.chessable.com/courses/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div className="social-icon">
-                  <FontAwesomeIcon icon={faChess} />
-                  <span>Chessable</span>
-                </div>
-              </a>
-            </li>
-            <li>
-              <a
                 href="https://saintlouischessclub.org/education/private-lessons"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -152,7 +128,7 @@ function Footer() {
           </ul>
         </li>
         <li className="nav__item">
-          <h2 className="nav__title">
+          <h2 className="nav__title__second">
             <FontAwesomeIcon icon={faBalanceScale} /> Legal
           </h2>
 

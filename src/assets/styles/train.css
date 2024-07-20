@@ -7,6 +7,56 @@
   box-sizing: border-box;
 }
 
+.left-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 20px;
+}
+
+.list-header {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  font-family: "Roboto", sans-serif;
+  animation: headerAnimation 2s ease-in-out;
+}
+
+.header-icon {
+  margin-right: 8px;
+  color: #ffffff;
+}
+
+.custom-list {
+  background-color: #b08c64;
+  border-radius: 8px;
+  margin: auto;
+  max-width: fit-content;
+}
+
+.custom-list-item {
+  padding: 10px;
+}
+
+.custom-list-item-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: "Roboto", sans-serif;
+}
+
+.custom-list-item-text {
+  font-size: 16px;
+  color: #ffffff;
+  font-family: "Roboto", sans-serif;
+}
+
+.item-icon {
+  font-size: 20px;
+}
+
 .piece {
   transition: transform 0.3s ease-in-out;
 }
@@ -289,7 +339,7 @@ h2 {
   .chessboard-wrapper,
   .last-move {
     width: 100%;
-    max-width: 40vw;
+    max-width: 39.2vw;
     margin-left: 10%;
     overflow-x: auto;
   }

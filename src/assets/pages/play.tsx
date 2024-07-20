@@ -10,6 +10,9 @@ import useWebSocket from "react-use-websocket";
 import gameStartSound from "../constants/sounds/game-start.mp3";
 import moveSelf from "../constants/sounds/move-self.mp3";
 import Swal from "sweetalert";
+import { Avatar, Card, Col, Row } from "antd";
+import Meta from "antd/es/card/Meta.js";
+import { SmileOutlined, FrownOutlined } from "@ant-design/icons";
 
 const OnlineGame = () => {
   useEffect(() => {
@@ -31,6 +34,16 @@ const OnlineGame = () => {
   >("");
   const [jwtReceived, setJwtReceived] = useState(false);
   const [playerColor, setPlayerColor] = useState("");
+  const [isGameFinished, setIsGameFinished] = useState(false);
+  const [OtherJWT, setOtherJWT] = useState("");
+  const [myName, setMyName] = useState("");
+  const [myLosses, setMyLosses] = useState("");
+  const [myWins, setMyWins] = useState("");
+  const [otherName, setOtherName] = useState("");
+  const [otherLosses, setOtherLosses] = useState("");
+  const [otherWins, setOtherWins] = useState("");
+  const [myPicture, setMyPicture] = useState("");
+  const [otherPicture, setOtherPicture] = useState("");
 
   const handleMove = (
     sourceSquare: string,
@@ -70,7 +83,7 @@ const OnlineGame = () => {
   };
 
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://172.16.1.39:8000/ws/${localStorage.getItem("token")}`,
+    `ws://172.16.1.22:8000/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -83,17 +96,17 @@ const OnlineGame = () => {
     if (!jwtReceived && lastMessage && typeof lastMessage.data === "string") {
       try {
         const receivedData = JSON.parse(lastMessage.data);
-        console.log(receivedData.white_player_jwt);
-        console.log(receivedData.black_player_jwt);
         if (receivedData.white_player_jwt && receivedData.black_player_jwt) {
           setJwtReceived(true);
           const currentPlayerJwt = localStorage.getItem("token");
           if (receivedData.white_player_jwt === currentPlayerJwt) {
             setBoardOrientation("white");
             setPlayerColor("white");
+            setOtherJWT(receivedData.black_player_jwt);
           } else if (receivedData.black_player_jwt === currentPlayerJwt) {
             setBoardOrientation("black");
             setPlayerColor("black");
+            setOtherJWT(receivedData.white_player_jwt);
           }
         }
       } catch (error) {
@@ -101,6 +114,52 @@ const OnlineGame = () => {
       }
     }
   }, [lastMessage, jwtReceived]);
+
+  useEffect(() => {
+    if (lastMessage && typeof lastMessage.data === "string") {
+      try {
+        const receivedData = JSON.parse(lastMessage.data);
+        if (receivedData.white_player_jwt && receivedData.black_player_jwt) {
+          createGame(receivedData);
+        } else {
+          console.error("Incomplete data for game creation:", receivedData);
+        }
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastMessage]);
+
+  interface ReceivedData {
+    white_player_jwt: string;
+    black_player_jwt: string;
+  }
+
+  const createGame = async (receivedData: ReceivedData) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("http://172.16.1.22:8000/games/create", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          white_player: receivedData.white_player_jwt,
+          black_player: receivedData.black_player_jwt,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error creating game:", errorData);
+        throw new Error("Failed to create game");
+      }
+    } catch (error) {
+      console.error("Error creating game:", error);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -123,54 +182,35 @@ const OnlineGame = () => {
   }, [lastMessage, jwtReceived, playerColor]);
 
   useEffect(() => {
-    if (game.isGameOver()) {
-      if (game.isDraw()) {
-        Swal({
-          title: "Draw!",
-          text: "The Game is Over",
-          icon: "info",
-        });
-      }
-      if (game.isStalemate()) {
-        Swal({
-          title: "Draw!",
-          text: "The Game is Over",
-          icon: "info",
-        });
-      }
-      if (game.isThreefoldRepetition()) {
-        Swal({
-          title: "Draw!",
-          text: "The Game is Over",
-          icon: "info",
-        });
-      }
-      if (game.isInsufficientMaterial()) {
-        Swal({
-          title: "Draw!",
-          text: "The Game is Over",
-          icon: "info",
-        });
-      }
-
-      if (game.isCheckmate()) {
-        if (game.turn() === "w") {
-          if (playerColor === game.turn()) {
-            Swal({
-              title: "Checkmate!",
-              text: "You lost the game!",
-              icon: "error",
-            });
-          } else {
-            Swal({
-              title: "Checkmate!",
-              text: "You won the game!",
-              icon: "error",
-            });
-          }
+    const handleGameOver = async () => {
+      if (game.isGameOver()) {
+        setIsGameFinished(true);
+        if (game.isCheckmate()) {
+          const winner = game.turn() === "w" ? "black" : "white";
+          Swal({
+            title: winner === playerColor ? "Game Won!" : "Game Lost!",
+            text:
+              winner === playerColor
+                ? "You won the game!"
+                : "You lost the game!",
+            icon: winner === playerColor ? "success" : "error",
+          });
+        } else if (
+          game.isDraw() ||
+          game.isStalemate() ||
+          game.isThreefoldRepetition() ||
+          game.isInsufficientMaterial()
+        ) {
+          Swal({
+            title: "Draw!",
+            text: "The Game is Over",
+            icon: "info",
+          });
         }
       }
-    }
+    };
+
+    handleGameOver();
   }, [game, playerColor]);
 
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
@@ -212,6 +252,103 @@ const OnlineGame = () => {
     }
   };
 
+  useEffect(() => {
+    const sendGameResult = async () => {
+      if (isGameFinished) {
+        try {
+          let resultWhite = "";
+          let resultBlack = "";
+
+          if (game.isCheckmate()) {
+            const winner = game.turn() === "w" ? "black" : "white";
+            resultWhite = winner === "white" ? "Won" : "Lost";
+            resultBlack = winner === "black" ? "Won" : "Lost";
+          }
+
+          const token = localStorage.getItem("token");
+          const response = await fetch("http://172.16.1.22:8000/games/put", {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              result_white: resultWhite,
+              result_black: resultBlack,
+            }),
+          });
+
+          if (response.ok) {
+            console.log("Succes!");
+          } else {
+            throw new Error("Error!");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        } finally {
+          setIsGameFinished(false);
+        }
+      }
+    };
+
+    sendGameResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameFinished]);
+
+  useEffect(() => {
+    if (jwtReceived) {
+      const fetchBothPictures = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("ERROR!");
+          throw new Error("ERROR!");
+        }
+
+        try {
+          const response = await fetch(
+            "http://172.16.1.22:8000/profile/get_both_pictures",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                myJWT: token,
+                otherJWT: OtherJWT,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error", errorData);
+            throw new Error("error");
+          }
+
+          const responseData = await response.json();
+
+          setMyName(responseData.myName);
+          setMyWins(responseData.myWins);
+          setMyLosses(responseData.myLosses);
+          setOtherName(responseData.otherName);
+          setOtherLosses(responseData.otherLosses);
+          setOtherWins(responseData.otherWins);
+          setMyPicture(
+            `data:image/jpeg;base64,${responseData.caller_profile_picture}`
+          );
+          setOtherPicture(
+            `data:image/jpeg;base64,${responseData.requested_profile_picture}`
+          );
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+
+      fetchBothPictures();
+    }
+  }, [OtherJWT, jwtReceived]);
+
   return (
     <div className="container-online">
       <Background />
@@ -227,24 +364,121 @@ const OnlineGame = () => {
             <Chessboard
               id="online-game"
               position={game.fen()}
-              onPieceDrop={(
-                sourceSquare: string,
-                targetSquare: string,
-                piece: string
-              ) => handleMove(sourceSquare, targetSquare, piece)}
+              onPieceDrop={(sourceSquare, targetSquare, piece) =>
+                handleMove(sourceSquare, targetSquare, piece)
+              }
               boardOrientation={boardOrientation || undefined}
               onPieceDragBegin={handlePieceDragBegin}
               promotionDialogVariant={"vertical"}
             />
-
             {isProcessingMove && (
               <div className="loading-indicator">Processing...</div>
             )}
           </div>
         </div>
-        <div className="right-area-online">
-          <div className="game-info-container"></div>
-        </div>
+        {jwtReceived && (
+          <div className="right-area-online">
+            <div className="game-info-container">
+              <Row gutter={[16, 16]} justify="center" align="middle">
+                <Col span={24}>
+                  <Card
+                    title="Your Info"
+                    style={{
+                      textAlign: "center",
+                      maxWidth: 300,
+                      marginBottom: 16,
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      backgroundColor: "#f8dcb4",
+                      fontWeight: "900",
+                    }}
+                    bordered={false}
+                    headStyle={{ fontSize: "1.2rem", color: "black" }}
+                  >
+                    <Meta
+                      avatar={
+                        <Avatar src={myPicture} size={128} draggable="false" />
+                      }
+                      title={
+                        <h2 style={{ fontWeight: "bold", color: "black" }}>
+                          {myName}
+                        </h2>
+                      }
+                      description={
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <h4 style={{ color: "#52c41a" }}>
+                            <SmileOutlined /> {`Wins: ${myWins}`}
+                          </h4>
+                          <h4 style={{ color: "#ff4d4f" }}>
+                            <FrownOutlined /> {`Losses: ${myLosses}`}
+                          </h4>
+                        </div>
+                      }
+                    />
+                  </Card>
+                </Col>
+                <Col span={24}>
+                  <Card
+                    title="Opponent's Info"
+                    style={{
+                      textAlign: "center",
+                      maxWidth: 300,
+                      marginBottom: 16,
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      backgroundColor: "#f8dcb4",
+                    }}
+                    bordered={false}
+                    headStyle={{
+                      fontSize: "1.2rem",
+                      color: "black",
+                      fontWeight: "900",
+                    }}
+                  >
+                    <Meta
+                      avatar={
+                        <Avatar
+                          src={otherPicture}
+                          size={128}
+                          draggable="false"
+                        />
+                      }
+                      title={
+                        <h2 style={{ fontWeight: "bold", color: "black" }}>
+                          {otherName}
+                        </h2>
+                      }
+                      description={
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <h4 style={{ color: "#52c41a" }}>
+                            <SmileOutlined /> {`Wins: ${otherWins}`}
+                          </h4>
+                          <h4 style={{ color: "#ff4d4f" }}>
+                            <FrownOutlined /> {`Losses: ${otherLosses}`}
+                          </h4>
+                        </div>
+                      }
+                    />
+                  </Card>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

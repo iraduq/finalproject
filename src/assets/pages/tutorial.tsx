@@ -1,19 +1,11 @@
-import { Link } from "react-router-dom";
 import Background from "../constants/background/background";
-import { faHouse } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../styles/tutorial.css";
 
 const Tutorial = () => {
   return (
     <div className="container">
       <Background></Background>
-      <div className="header-online">
-        <Link to="/main">
-          <FontAwesomeIcon icon={faHouse} />
-          <span className="icon-spacing">HOME</span>
-        </Link>
-      </div>
+      <div className="header-online"></div>
       <h1>chess moves</h1>
       <div className="boxes">
         <div className="box">
