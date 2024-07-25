@@ -41,3 +41,19 @@
 .ant-menu {
   height: 100%;
 }
+
+.submenu-popup {
+  width: 15%;
+  height: 22%;
+}
+
+.custom-sider .ant-layout-sider-zero-width-trigger {
+  background-color: #111 !important;
+  color: #4f4846 !important;
+  border: none !important;
+}
+
+.custom-sider .ant-layout-sider-zero-width-trigger:hover {
+  background-color: #222 !important;
+  color: #197221 !important;
+}

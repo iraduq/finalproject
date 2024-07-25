@@ -177,7 +177,7 @@ const SideNav: React.FC<{ refs: RefsType }> = ({ refs }) => {
     const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
       try {
-        const response = await fetch("http://172.16.1.70:8000/profile/get", {
+        const response = await fetch("http://192.168.0.164:8000/profile/get", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -207,7 +207,7 @@ const SideNav: React.FC<{ refs: RefsType }> = ({ refs }) => {
         top: 0,
         overflow: "auto",
         zIndex: 1,
-        background: "#071228",
+        background: "#111",
         borderRight: "3px solid grey",
       }}
     >
@@ -229,7 +229,7 @@ const SideNav: React.FC<{ refs: RefsType }> = ({ refs }) => {
       <Menu
         mode="inline"
         defaultSelectedKeys={["0"]}
-        style={{ borderRight: 0, background: "#071228" }}
+        style={{ borderRight: 0, background: "#111" }}
         theme="dark"
         items={menuItems.map((item) =>
           item.children
@@ -407,7 +407,11 @@ const MatchHistory: React.FC = () => {
       columns={columns}
       dataSource={data}
       pagination={{ pageSize: 5 }}
-      style={{ width: "100%", backgroundColor: "#071228" }}
+      style={{
+        width: "100%",
+        backgroundColor: "#222",
+        boxShadow: "0 0 2px rgba(255, 255, 255, 0.32)",
+      }}
     />
   );
 };
@@ -435,7 +439,7 @@ const Profile: React.FC = () => {
     const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
       try {
-        const response = await fetch("http://172.16.1.70:8000/profile/get", {
+        const response = await fetch("http://192.168.0.164:8000/profile/get", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -462,7 +466,7 @@ const Profile: React.FC = () => {
 
   const props = {
     name: "file",
-    action: "http://172.16.1.70:8000/profile/upload/",
+    action: "http://192.168.0.164:8000/profile/upload/",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -509,7 +513,7 @@ const Profile: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "http://172.16.1.70:8000/profile/update_description",
+        "http://192.168.0.164:8000/profile/update_description",
         {
           method: "PUT",
           headers: {
@@ -542,8 +546,8 @@ const Profile: React.FC = () => {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: "#1E90FF",
-          colorBgContainer: "#001529",
+          colorPrimary: "#222",
+          colorBgContainer: "rgba(0, 0, 0, 0)",
         },
       }}
     >
@@ -554,7 +558,7 @@ const Profile: React.FC = () => {
             marginLeft: 250,
             padding: "20px",
             overflow: "initial",
-            background: "#071228",
+            background: "rgba(0, 0, 0, 0.91)",
             minHeight: "100vh",
           }}
         >
@@ -564,7 +568,7 @@ const Profile: React.FC = () => {
               style={{
                 padding: "20px",
                 borderRadius: "10px",
-                background: "#001529",
+                background: "#111",
                 boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
               }}
             >
@@ -638,7 +642,7 @@ const Profile: React.FC = () => {
               style={{
                 padding: "20px",
                 borderRadius: "10px",
-                background: "#001529",
+                background: "#111",
                 boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
               }}
             >
@@ -653,7 +657,7 @@ const Profile: React.FC = () => {
               style={{
                 padding: "20px",
                 borderRadius: "10px",
-                background: "#001529",
+                background: "#111",
                 boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
               }}
             >
@@ -851,7 +855,7 @@ const Profile: React.FC = () => {
               style={{
                 padding: "20px",
                 borderRadius: "10px",
-                background: "#001529",
+                background: "#111",
                 boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
               }}
             >

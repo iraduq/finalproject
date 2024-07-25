@@ -323,6 +323,8 @@ function ChessComponent() {
               areArrowsAllowed={true}
               clearPremovesOnRightClick={true}
               promotionDialogVariant={"vertical"}
+              customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+              customLightSquareStyle={{ backgroundColor: "#222" }}
             />
           </div>
         </div>
@@ -389,10 +391,9 @@ function ChessComponent() {
               </List.Item>
             )}
             style={{
-              backgroundColor: "#b08c64",
+              backgroundColor: "#222",
               margin: "auto",
               maxWidth: "fit-content",
-              borderRadius: "8px",
             }}
           />
         </div>

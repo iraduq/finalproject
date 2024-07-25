@@ -111,22 +111,23 @@
 }
 
 .chessboard-wrapper {
-  border-left: 5px solid rgba(181, 136, 99, 255);
-  border-right: 5px solid rgba(181, 136, 99, 255);
-  border-bottom: 5px solid rgba(181, 136, 99, 255);
-  border-top: 5px solid rgba(181, 136, 99, 255);
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 .react-chessboard-piece {
   font-size: 3em;
 }
 
+.custom-list {
+  border: none !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
 .right-content {
   background-color: rgba(181, 136, 99, 255);
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 5px solid rgba(84, 84, 90, 0.4);
+  border: 5px solid rgba(32, 32, 196, 0.4);
   font-size: 1.3em;
   font-weight: bold;
   font-family: "Times New Roman", Times, serif;
@@ -144,7 +145,6 @@ h2 {
 
 .custom-list-item {
   padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .custom-list-item:last-child {
@@ -209,27 +209,63 @@ h2 {
 
 @media only screen and (max-width: 600px) {
   .header-online {
-    margin-top: 10%;
-  }
-  .left-content {
-    display: none;
+    margin-top: 0%;
   }
 
   .chess-container {
-    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
+
   .chessboard-container {
     width: 100%;
-    padding: 10px;
-    height: 100%;
-    flex-direction: column;
+    padding: 5px;
+    height: auto;
   }
+
   .chessboard-wrapper {
     width: 100%;
-    height: 100%;
+    height: auto;
   }
+
   .right-content {
     display: none;
+  }
+
+  .left-content {
+    display: block;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    height: auto;
+    max-height: 80vh;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .custom-list {
+    font-size: 0.8rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+  }
+
+  .custom-list-item {
+    font-size: 0.5rem;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .item-icon {
+    font-size: 1rem;
+  }
+
+  .list-header {
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
   }
 }
 
@@ -368,7 +404,7 @@ h2 {
 .right-content {
   background-color: rgba(181, 136, 99, 255);
   padding: 20px;
-  border: 5px solid rgba(84, 84, 90, 0.4);
+  border: 5px solid rgba(90, 84, 85, 0.4);
   font-size: 1.3em;
   font-weight: bold;
   font-family: "Times New Roman", Times, serif;
@@ -438,23 +474,30 @@ h2 {
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: #ffffff;
-  background-color: #f8cbb4;
+  background-color: #222;
   border-style: none;
   border-radius: 8px;
   min-width: 300px;
-  padding: 16px 24px;
+  padding: 16px 10px;
   transform: scale(1);
   transition: 0.2s;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  width: 100px;
+  height: 100px;
 }
 
-.right-puzzle button {
-  background-color: #f8cbb4;
-  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+.right-puzzle button svg {
+  height: 40px;
+  width: 40px;
+  margin-right: 10px;
 }
 
-.right-puzzle button {
+.right-puzzle button:hover {
   transform: scale(0.95);
+  box-shadow: none;
+}
+
+.right-puzzle button {
   box-shadow: none;
 }

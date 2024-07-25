@@ -1,148 +1,50 @@
-import { useEffect, useState } from "react";
-import { Card, Row, Col, Statistic, ConfigProvider } from "antd";
-import {
-  TeamOutlined,
-  TrophyOutlined,
-  PlayCircleOutlined,
-  AppstoreAddOutlined,
-} from "@ant-design/icons";
+import { useEffect, useRef } from "react";
+import { Card, Row, Col } from "antd";
+import { Player } from "@lottiefiles/react-lottie-player";
+import { useNavigate } from "react-router-dom";
 import Background from "../constants/background/background.tsx";
-import Footer from "../constants/footer/footer.tsx";
 import Menu from "../constants/menu/menu.tsx";
-import chessboardImage from "../images/chessboard.jpg";
 import "../styles/home.css";
 
-interface Stats {
-  numberOfActiveRooms: number;
-  numberOfActiveUsers: number;
-  numberOfGamesPlayed: number;
-  numberOfTournamentsEver: number;
-  numberOfPlayersRegisteredToday: number;
-}
-
-const Statistics = ({ stats }: { stats: Stats }) => {
-  return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorText: "white",
-        },
-      }}
-    >
-      <Card
-        title={
-          <span
-            style={{
-              textAlign: "center",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Platform Statistics
-          </span>
-        }
-        bordered={false}
-        style={{
-          width: 300,
-          backgroundColor: "transparent",
-          color: "white",
-          alignContent: "center",
-        }}
-      >
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={12}>
-            <Statistic
-              title={<span style={{ color: "white" }}>Registered Today</span>}
-              value={stats.numberOfPlayersRegisteredToday}
-              prefix={<TeamOutlined />}
-            />
-          </Col>
-          <Col span={12}>
-            <Statistic
-              title={<span style={{ color: "white" }}>Active Rooms</span>}
-              value={stats.numberOfActiveRooms}
-              prefix={<AppstoreAddOutlined />}
-            />
-          </Col>
-        </Row>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={12}>
-            <Statistic
-              title={<span style={{ color: "white" }}>Active Users</span>}
-              value={stats.numberOfActiveUsers}
-              prefix={<TeamOutlined />}
-            />
-          </Col>
-          <Col span={12}>
-            <Statistic
-              title={<span style={{ color: "white" }}>Games Played</span>}
-              value={stats.numberOfGamesPlayed}
-              prefix={<PlayCircleOutlined />}
-            />
-          </Col>
-        </Row>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={24}>
-            <Statistic
-              title={<span style={{ color: "white" }}>Tournaments Ever</span>}
-              value={stats.numberOfTournamentsEver}
-              prefix={<TrophyOutlined />}
-              className="titleClassName"
-            />
-          </Col>
-        </Row>
-      </Card>
-    </ConfigProvider>
-  );
-};
+import OnlineAnimation from "../animations/online.json";
+import PuzzleAnimation from "../animations/puzzle.json";
+import RobotAnimation from "../animations/robot.json";
+import HoverSound from "../sounds/selectSound.mp3";
 
 const MainPage = () => {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const navigate = useNavigate();
+
+  const onlineRef = useRef<Player>(null);
+  const puzzleRef = useRef<Player>(null);
+  const robotRef = useRef<Player>(null);
+
+  const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("http://172.16.1.70:8000/server/data", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const {
-            numberOfPlayersRegisteredToday,
-            numberOfActiveRooms,
-            numberOfActiveUsers,
-            numberOfGamesPlayed,
-            numberOfTournamentsEver,
-          } = data;
-
-          setStats({
-            numberOfPlayersRegisteredToday,
-            numberOfActiveRooms,
-            numberOfActiveUsers,
-            numberOfGamesPlayed,
-            numberOfTournamentsEver,
-          });
-        } else {
-          console.error(
-            "Failed to fetch profile image. Status:",
-            response.status
-          );
-          throw new Error("Failed to fetch profile image");
-        }
-      } catch (error) {
-        console.error("Error fetching profile image:", error);
-      }
-    };
-
-    fetchStats();
+    hoverSoundRef.current = new Audio(HoverSound);
+    if (hoverSoundRef.current) {
+      hoverSoundRef.current.volume = 0.3;
+    }
   }, []);
+
+  const handleMouseEnter = (ref: React.RefObject<Player>) => {
+    ref.current?.play();
+    if (hoverSoundRef.current) {
+      hoverSoundRef.current.play();
+    }
+  };
+
+  const handleMouseLeave = (ref: React.RefObject<Player>) => {
+    ref.current?.stop();
+    if (hoverSoundRef.current) {
+      hoverSoundRef.current.pause();
+      hoverSoundRef.current.currentTime = 0;
+    }
+  };
+
+  const handleCardClick = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <div className="mainpage-container">
@@ -152,27 +54,95 @@ const MainPage = () => {
           <Menu />
         </div>
         <div className="middle-side-main">
-          <img
-            src={chessboardImage}
-            className="img-main-table"
-            alt="Chessboard"
-            draggable="false"
-            style={{ border: "3px solid white" }}
-          />
+          <div className="text-banner">
+            <span className="text-banner-heading">Play Chess</span>
+            <span className="text-banner-subheading">
+              Unleash Your Strategy: Play Chess Like a Pro
+            </span>
+          </div>
+          <Row gutter={16} justify="center">
+            <Col xs={24} sm={12} md={8} lg={8}>
+              <Card
+                bordered={false}
+                className="animation-card"
+                onMouseEnter={() => handleMouseEnter(onlineRef)}
+                onMouseLeave={() => handleMouseLeave(onlineRef)}
+                onClick={() => handleCardClick("/online")}
+              >
+                <div className="card-content">
+                  <Player
+                    ref={onlineRef}
+                    autoplay={false}
+                    loop
+                    src={OnlineAnimation}
+                    className="animation-player"
+                  />
+                </div>
+                <div className="card-footer online-footer">
+                  <span className="footer-text">Play Online</span>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={8}>
+              <Card
+                bordered={false}
+                className="animation-card"
+                onMouseEnter={() => handleMouseEnter(puzzleRef)}
+                onMouseLeave={() => handleMouseLeave(puzzleRef)}
+                onClick={() => handleCardClick("/puzzle")}
+              >
+                <div className="card-content">
+                  <Player
+                    ref={puzzleRef}
+                    autoplay={false}
+                    loop
+                    src={PuzzleAnimation}
+                    className="animation-player"
+                  />
+                </div>
+                <div className="card-footer puzzle-footer">
+                  <span className="footer-text">Play Puzzle</span>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={8}>
+              <Card
+                bordered={false}
+                className="animation-card"
+                onMouseEnter={() => handleMouseEnter(robotRef)}
+                onMouseLeave={() => handleMouseLeave(robotRef)}
+                onClick={() => handleCardClick("/train")}
+              >
+                <div className="card-content">
+                  <Player
+                    ref={robotRef}
+                    autoplay={false}
+                    loop
+                    src={RobotAnimation}
+                    className="animation-player"
+                  />
+                </div>
+                <div className="card-footer robot-footer">
+                  <span className="footer-text">Play Vs Robot</span>
+                </div>
+              </Card>
+            </Col>
+          </Row>
         </div>
         <div
           className="right-side-main"
           style={{ marginLeft: "0", padding: "20px" }}
-        >
-          {stats !== null ? (
-            <Statistics stats={stats} />
-          ) : (
-            <div>Loading...</div>
-          )}
-        </div>
+        ></div>
       </div>
-      <div className="footer-side">
-        <Footer />
+      <div className="bottom-banner">
+        <span className="banner-text">
+          © 2024 Techy Pythons. All rights reserved. Techy Pythons may earn a
+          portion of sales from products that are purchased through our site as
+          part of our Affiliate Partnerships with retailers. The material on
+          this site may not be reproduced, distributed, transmitted, cached or
+          otherwise used, except with the prior written permission of Techy
+          Pythons.
+        </span>
       </div>
     </div>
   );

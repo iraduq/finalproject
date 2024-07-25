@@ -1,9 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@300;400;500;600;700&family=Pacifico&display=swap");
+
 .footer {
   display: flex;
   flex-flow: row wrap;
   padding: 30px;
   color: white;
   border-top: 1px solid #e5e5e5;
+  font-family: "Lora", serif;
+  font-weight: 100;
+  font-size: 0.8em;
 }
 
 .footer > * {
@@ -17,21 +22,21 @@
 
 .footer__logo {
   font-family: "Pacifico", cursive;
-  font-weight: 400;
+  font-weight: 100;
   text-transform: lowercase;
   font-size: 1.5rem;
 }
 
 .footer__addr h2 {
   margin-top: 1.3em;
-  font-family: "Oswald", sans-serif;
+  font-family: "Lora", serif;
   font-size: 1.1em;
-  font-weight: 400;
+  font-weight: 100;
 }
 
 .nav__title {
-  font-weight: 600;
-  font-family: "Oswald", sans-serif;
+  font-weight: 100;
+  font-family: "Lora", serif;
   display: flex;
   align-items: center;
   margin: 0;

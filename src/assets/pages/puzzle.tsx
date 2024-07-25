@@ -11,7 +11,6 @@ import moveSelf from "../constants/sounds/move-self.mp3";
 import { Button, Modal } from "antd";
 import { UserOutlined, CrownOutlined } from "@ant-design/icons";
 import wrongSound from "../constants/sounds/wrong.mp3";
-
 type PlayerColor = "w" | "b";
 
 interface WelcomeModalProps {
@@ -441,6 +440,8 @@ const PuzzleGame = () => {
               arePiecesDraggable={true}
               onPieceDragBegin={handlePieceDragBegin}
               areArrowsAllowed={true}
+              customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+              customLightSquareStyle={{ backgroundColor: "#222" }}
             />
 
             <ToastContainer

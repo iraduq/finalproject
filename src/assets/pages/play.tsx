@@ -83,7 +83,7 @@ const OnlineGame = () => {
   };
 
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://172.16.1.22:8000/ws/${localStorage.getItem("token")}`,
+    `ws://192.168.0.164:8000/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -139,7 +139,7 @@ const OnlineGame = () => {
   const createGame = async (receivedData: ReceivedData) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://172.16.1.22:8000/games/create", {
+      const response = await fetch("http://192.168.0.164:8000/games/create", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -266,7 +266,7 @@ const OnlineGame = () => {
           }
 
           const token = localStorage.getItem("token");
-          const response = await fetch("http://172.16.1.22:8000/games/put", {
+          const response = await fetch("http://192.168.0.164:8000/games/put", {
             method: "PUT",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -306,7 +306,7 @@ const OnlineGame = () => {
 
         try {
           const response = await fetch(
-            "http://172.16.1.22:8000/profile/get_both_pictures",
+            "http://192.168.0.164:8000/profile/get_both_pictures",
             {
               method: "POST",
               headers: {
@@ -370,6 +370,8 @@ const OnlineGame = () => {
               boardOrientation={boardOrientation || undefined}
               onPieceDragBegin={handlePieceDragBegin}
               promotionDialogVariant={"vertical"}
+              customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+              customLightSquareStyle={{ backgroundColor: "#222" }}
             />
             {isProcessingMove && (
               <div className="loading-indicator">Processing...</div>
@@ -388,19 +390,19 @@ const OnlineGame = () => {
                       maxWidth: 300,
                       marginBottom: 16,
                       borderRadius: "8px",
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                      backgroundColor: "#f8dcb4",
+                      boxShadow: "0 4px 8px rgba(36, 36, 36, 1)",
+                      backgroundColor: "#222",
                       fontWeight: "900",
                     }}
                     bordered={false}
-                    headStyle={{ fontSize: "1.2rem", color: "black" }}
+                    headStyle={{ fontSize: "1.2rem", color: "white" }}
                   >
                     <Meta
                       avatar={
                         <Avatar src={myPicture} size={128} draggable="false" />
                       }
                       title={
-                        <h2 style={{ fontWeight: "bold", color: "black" }}>
+                        <h2 style={{ fontWeight: "bold", color: "white" }}>
                           {myName}
                         </h2>
                       }
@@ -432,13 +434,14 @@ const OnlineGame = () => {
                       maxWidth: 300,
                       marginBottom: 16,
                       borderRadius: "8px",
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                      backgroundColor: "#f8dcb4",
+                      boxShadow: "0 4px 8px rgba(36, 36, 36, 1)",
+                      color: "white",
+                      backgroundColor: "#222",
                     }}
                     bordered={false}
                     headStyle={{
                       fontSize: "1.2rem",
-                      color: "black",
+                      color: "white",
                       fontWeight: "900",
                     }}
                   >
@@ -451,7 +454,7 @@ const OnlineGame = () => {
                         />
                       }
                       title={
-                        <h2 style={{ fontWeight: "bold", color: "black" }}>
+                        <h2 style={{ fontWeight: "bold", color: "white" }}>
                           {otherName}
                         </h2>
                       }

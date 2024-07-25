@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Lato:200,300,400,400i,700');
-@import url('https://fonts.googleapis.com/css?family=Merriweather:200,400,400i,700');
+@import url("https://fonts.googleapis.com/css?family=Lato:200,300,400,400i,700");
+@import url("https://fonts.googleapis.com/css?family=Merriweather:200,400,400i,700");
 
 * {
   margin: 0;
@@ -8,7 +8,7 @@
   font-family: Lato, sans-serif;
 }
 body {
-  background-color: #181818;
+  background-color: #111;
   color: #d8d8d8;
 }
 
@@ -27,12 +27,12 @@ body {
   font-weight: 200;
 }
 .container h1::before {
-  content: '─';
+  content: "─";
   margin-right: 0.6em;
   color: #686868;
 }
 .container h1::after {
-  content: '─';
+  content: "─";
   margin-left: 0.6em;
   color: #686868;
 }
