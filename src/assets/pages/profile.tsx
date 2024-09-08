@@ -177,7 +177,7 @@ const SideNav: React.FC<{ refs: RefsType }> = ({ refs }) => {
     const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
       try {
-        const response = await fetch("http://192.168.0.164:8000/profile/get", {
+        const response = await fetch("http://192.168.0.248:8000/profile/get", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -439,7 +439,7 @@ const Profile: React.FC = () => {
     const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
       try {
-        const response = await fetch("http://192.168.0.164:8000/profile/get", {
+        const response = await fetch("http://192.168.0.248:8000/profile/get", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -466,7 +466,7 @@ const Profile: React.FC = () => {
 
   const props = {
     name: "file",
-    action: "http://192.168.0.164:8000/profile/upload/",
+    action: "http://192.168.0.248:8000/profile/upload/",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -513,7 +513,7 @@ const Profile: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "http://192.168.0.164:8000/profile/update_description",
+        "http://192.168.0.248:8000/profile/update_description",
         {
           method: "PUT",
           headers: {

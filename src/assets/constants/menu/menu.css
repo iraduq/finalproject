@@ -51,6 +51,7 @@
   background-color: #111 !important;
   color: #4f4846 !important;
   border: none !important;
+  z-index: 1000;
 }
 
 .custom-sider .ant-layout-sider-zero-width-trigger:hover {

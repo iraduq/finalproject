@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
-import { Chess } from "chess.js";
+import { Chess, Move } from "chess.js";
 import Background from "../constants/background/background.js";
-import { Move } from "chess.js";
 import "../styles/train.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Flip } from "react-toastify";
-import { List } from "antd";
+import Menu from "../constants/menu/menu.tsx";
 import wrongSound from "../constants/sounds/wrong.mp3";
 import NotificationSound from "../constants/sounds/notification.mp3";
-
+import { Button, Modal } from "antd";
+import "antd/dist/reset.css";
+import lottieBlackPlayer from "../animations/trainingRobot.json";
 import {
   faChessPawn,
   faChessRook,
@@ -17,15 +18,11 @@ import {
   faChessBishop,
   faChessQueen,
   faChessKing,
-  faChartBar,
-  faCheck,
-  faTimes,
-  faHouse,
 } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert";
+import { Player } from "@lottiefiles/react-lottie-player";
 
 const stockfish = new Worker("./node_modules/stockfish.js/stockfish.js");
 
@@ -40,12 +37,147 @@ const pieceIcons = {
 
 function ChessComponent() {
   const initialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  const [game, setGame] = useState(new Chess(initialFen));
+  const [game, setGame] = useState<Chess>(() => {
+    const savedFen = localStorage.getItem("chessGame");
+    return new Chess(savedFen || initialFen);
+  });
   const [lastMove, setLastMove] = useState<React.ReactElement | null>(null);
+  const [capturedByWhite, setCapturedByWhite] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem("capturedByWhite") || "[]")
+  );
+  const [capturedByBlack, setCapturedByBlack] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem("capturedByBlack") || "[]")
+  );
+  const [moveHistory, setMoveHistory] = useState<Move[]>(() =>
+    JSON.parse(localStorage.getItem("moveHistory") || "[]")
+  );
+  const [formattedMoveHistory, setFormattedMoveHistory] = useState<string>("");
+  const [ECO, setECO] = useState<string>(
+    () => localStorage.getItem("ECO") || ""
+  );
+  const [Opening, setOpening] = useState<string>(
+    () => localStorage.getItem("Opening") || "Starting Position"
+  );
+  const [Variation, setVariation] = useState<string>(
+    () => localStorage.getItem("Variation") || " "
+  );
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [resumeModalVisible, setResumeModalVisible] = useState(false);
+  const maxHistoryLines = 6;
 
-  if (lastMove) {
-    null;
-  }
+  useEffect(() => {
+    const savedFen = localStorage.getItem("chessGame");
+    const savedMoveHistory = localStorage.getItem("moveHistory");
+    const savedCapturedByWhite = localStorage.getItem("capturedByWhite");
+    const savedCapturedByBlack = localStorage.getItem("capturedByBlack");
+    const savedECO = localStorage.getItem("ECO");
+    const savedOpening = localStorage.getItem("Opening");
+    const savedVariation = localStorage.getItem("Variation");
+
+    if (savedFen && savedFen !== initialFen) {
+      setResumeModalVisible(true);
+      setGame(new Chess(savedFen));
+    } else {
+      setGame(new Chess(initialFen));
+    }
+
+    if (savedMoveHistory) {
+      setMoveHistory(JSON.parse(savedMoveHistory));
+    }
+
+    if (savedCapturedByWhite) {
+      setCapturedByWhite(JSON.parse(savedCapturedByWhite));
+    }
+
+    if (savedCapturedByBlack) {
+      setCapturedByBlack(JSON.parse(savedCapturedByBlack));
+    }
+
+    setECO(savedECO || "");
+    setOpening(savedOpening || "");
+    setVariation(savedVariation || " ");
+  }, []);
+
+  const showNewGameModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+    resetGame();
+    console.log("Started a new game and closed new game modal.");
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    console.log("Closed new game modal.");
+  };
+
+  const resetGame = () => {
+    setGame(new Chess(initialFen));
+    setCapturedByWhite([]);
+    setCapturedByBlack([]);
+    setMoveHistory([]);
+    setFormattedMoveHistory("");
+    setECO("");
+    setOpening("Starting Position");
+    setVariation(" ");
+    localStorage.removeItem("chessGame");
+    localStorage.removeItem("moveHistory");
+    localStorage.removeItem("capturedByWhite");
+    localStorage.removeItem("capturedByBlack");
+    localStorage.removeItem("ECO");
+    localStorage.removeItem("Opening");
+    localStorage.removeItem("Variation");
+    playGameStartSound();
+  };
+
+  const handleResumeGame = () => {
+    setResumeModalVisible(false);
+
+    const savedFen = localStorage.getItem("chessGame");
+    const savedMoveHistory = localStorage.getItem("moveHistory");
+    const savedCapturedByWhite = localStorage.getItem("capturedByWhite");
+    const savedCapturedByBlack = localStorage.getItem("capturedByBlack");
+    const savedECO = localStorage.getItem("ECO");
+    const savedOpening = localStorage.getItem("Opening");
+    const savedVariation = localStorage.getItem("Variation");
+
+    if (savedFen && savedFen !== initialFen) {
+      setGame(new Chess(savedFen));
+    } else {
+      setGame(new Chess(initialFen));
+    }
+
+    if (savedMoveHistory) {
+      setMoveHistory(JSON.parse(savedMoveHistory));
+    } else {
+      setMoveHistory([]);
+    }
+
+    if (savedCapturedByWhite) {
+      setCapturedByWhite(JSON.parse(savedCapturedByWhite));
+    } else {
+      setCapturedByWhite([]);
+    }
+
+    if (savedCapturedByBlack) {
+      setCapturedByBlack(JSON.parse(savedCapturedByBlack));
+    } else {
+      setCapturedByBlack([]);
+    }
+
+    setECO(savedECO || "");
+    setOpening(savedOpening || "");
+    setVariation(savedVariation || " ");
+
+    console.log("Game resumed and state restored.");
+  };
+
+  const handleCancelResume = () => {
+    setResumeModalVisible(false);
+    resetGame();
+  };
 
   const playIllegalMoveSound = () => {
     const illegalMoveSound = new Audio(wrongSound);
@@ -53,14 +185,36 @@ function ChessComponent() {
       console.error("Error playing illegal move sound:", error);
     });
   };
+
   const playWinSound = () => {
     const playWinSound = new Audio(
       "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/illegal.mp3"
     );
     playWinSound.play().catch((error) => {
-      console.error("Error playing illegal move sound:", error);
+      console.error("Error playing win sound:", error);
     });
   };
+
+  const playGameStartSound = () => {
+    const gameStartSound = new Audio(
+      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3"
+    );
+    gameStartSound.play().catch((error) => {
+      console.error("Error playing game start sound:", error);
+    });
+  };
+
+  const playGameEndSound = () => {
+    const delay = 500;
+    setTimeout(() => {
+      const gameEndSound = new Audio(NotificationSound);
+      gameEndSound.volume = 0.1;
+      gameEndSound.play().catch((error) => {
+        console.error("Error playing game end sound:", error);
+      });
+    }, delay);
+  };
+
   useEffect(() => {
     playGameStartSound();
   }, []);
@@ -78,7 +232,7 @@ function ChessComponent() {
     if (game.isGameOver()) {
       if (game.isCheckmate()) {
         playGameEndSound();
-        if (game.turn() == "w") {
+        if (game.turn() === "w") {
           Swal({
             title: "Checkmate!",
             text: "You lost the game!",
@@ -88,7 +242,7 @@ function ChessComponent() {
           Swal({
             title: "Checkmate!",
             text: "You won the game!",
-            icon: "succes",
+            icon: "success",
           });
         }
       } else if (game.isDraw()) {
@@ -129,6 +283,26 @@ function ChessComponent() {
       }
     }
   }, [game]);
+
+  useEffect(() => {
+    const fen = game.fen();
+    localStorage.setItem("chessGame", fen);
+    localStorage.setItem("moveHistory", JSON.stringify(moveHistory));
+    localStorage.setItem("capturedByWhite", JSON.stringify(capturedByWhite));
+    localStorage.setItem("capturedByBlack", JSON.stringify(capturedByBlack));
+    localStorage.setItem("ECO", "");
+    localStorage.setItem("Opening", Opening);
+    localStorage.setItem("Variation", Variation);
+    console.log("Saved game state to localStorage.");
+  }, [
+    game,
+    moveHistory,
+    capturedByWhite,
+    capturedByBlack,
+    ECO,
+    Opening,
+    Variation,
+  ]);
 
   function makeStockfishMove() {
     stockfish.postMessage("position fen " + game.fen());
@@ -221,42 +395,58 @@ function ChessComponent() {
   const updateMoveHistory = (move: Move | null) => {
     if (!move) return;
 
+    const pieceKey = move.piece as keyof typeof pieceIcons;
     const pieceColor = game.turn() === "w" ? "black" : "white";
+
+    if (lastMove) {
+      null;
+    }
     const notation = (
       <div>
         <p>Last move</p>
         <p>
-          <FontAwesomeIcon icon={pieceIcons[move.piece]} color={pieceColor} />{" "}
-          from {move.from} to {move.to}
+          <FontAwesomeIcon icon={pieceIcons[pieceKey]} color={pieceColor} />{" "}
+          {move.to}
         </p>
       </div>
     );
 
     setLastMove(notation);
-  };
 
-  const playGameStartSound = () => {
-    const gameStartSound = new Audio(
-      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3"
-    );
-    gameStartSound.play().catch((error) => {
-      console.error("Error playing game start sound:", error);
+    if (move.captured) {
+      const capturedPiece = move.captured as keyof typeof pieceIcons;
+      if (game.turn() === "b") {
+        setCapturedByWhite([...capturedByWhite, capturedPiece]);
+      } else {
+        setCapturedByBlack([...capturedByBlack, capturedPiece]);
+      }
+    }
+
+    setMoveHistory((prevHistory) => {
+      const updatedHistory = [...prevHistory, move];
+      const totalMoves = updatedHistory.length;
+      const totalLines = Math.ceil(totalMoves / 2);
+
+      if (totalLines > maxHistoryLines) {
+        const linesToRemove = totalLines - maxHistoryLines;
+        updatedHistory.splice(0, linesToRemove * 2);
+      }
+
+      const historyString = updatedHistory.reduce((acc, move, index) => {
+        const moveNumber = Math.floor(index / 2) + 1;
+        const isWhiteMove = index % 2 === 0;
+        const moveStr = move.san || "";
+
+        if (isWhiteMove) {
+          return acc + ` ${moveNumber}. ${moveStr}`;
+        } else {
+          return acc + ` ${moveStr}`;
+        }
+      }, "");
+
+      setFormattedMoveHistory(historyString);
+      return updatedHistory;
     });
-  };
-
-  useEffect(() => {
-    playGameStartSound();
-  }, []);
-
-  const playGameEndSound = () => {
-    const delay = 500;
-    setTimeout(() => {
-      const gameEndSound = new Audio(NotificationSound);
-      gameEndSound.volume = 0.1;
-      gameEndSound.play().catch((error) => {
-        console.error("Error playing game end sound:", error);
-      });
-    }, delay);
   };
 
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
@@ -270,11 +460,6 @@ function ChessComponent() {
       console.log("Legal moves for the picked up piece:");
       pieceMoves.forEach((move, index) => {
         console.log(`Move ${index + 1}:`);
-        console.log(`From: ${move.from}`);
-        console.log(`To: ${move.to}`);
-        console.log(`Piece: ${move.piece}`);
-        console.log(`Flags: ${move.flags}`);
-        console.log(`San: ${move.san}`);
 
         const targetSquareElement = document.querySelector<HTMLElement>(
           `[data-square="${move.to}"]`
@@ -303,99 +488,234 @@ function ChessComponent() {
     }
   };
 
+  async function findOpening(formattedMoveHistory: string) {
+    try {
+      const response = await fetch("../src/assets/constants/openings/eco.txt");
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const pgnFileContent = await response.text();
+
+      const pgnEntries = pgnFileContent.split(/\n\s*\n/);
+      const normalizedMoveHistory = formattedMoveHistory
+        .replace(/\s*\*\s*$/, "")
+        .trim();
+      let index = 0;
+
+      for (const entry of pgnEntries) {
+        const normalizedEntry = entry.replace(/\s*\*\s*$/, "").trim();
+        index++;
+        if (normalizedEntry === normalizedMoveHistory) {
+          if (normalizedEntry === "") {
+            break;
+          }
+          const saveContent = pgnEntries[index - 2];
+          const extractedValues = (saveContent.match(/"([^"]*)"/g) || []).map(
+            (match) => match.slice(1, -1)
+          );
+
+          setECO(extractedValues[0] || "N/A");
+          setOpening(extractedValues[1] || "N/A");
+          setVariation(extractedValues[2] || "N/A");
+
+          const ecoMatch = entry.match(/\[ECO\s+"([^"]+)"\]/);
+          const eco = ecoMatch ? ecoMatch[1] : "N/A";
+
+          const openingMatch = entry.match(/\[Opening\s+"([^"]+)"\]/);
+          const opening = openingMatch ? openingMatch[1] : "N/A";
+
+          const variationMatch = entry.match(/\[Variation\s+"([^"]+)"\]/);
+          const variation = variationMatch ? variationMatch[1] : "N/A";
+
+          return {
+            ECO: eco,
+            Opening: opening,
+            Variation: variation,
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching the PGN file:", error);
+      return null;
+    }
+  }
+
+  findOpening(formattedMoveHistory).then((openingInfo) => {
+    if (openingInfo) {
+      null;
+    } else {
+      null;
+    }
+  });
+
   return (
     <div className="chess-wrapper">
       <Background />
-      <ToastContainer></ToastContainer>
-      <div className="header-online">
-        <Link to="/main">
-          <FontAwesomeIcon icon={faHouse} />
-          <span className="icon-spacing">HOME</span>
-        </Link>
-      </div>
-      <div className="chess-container">
-        <div className="chessboard-container">
-          <div className="chessboard-wrapper">
-            <Chessboard
-              position={game.fen()}
-              onPieceDrop={handleMove}
-              onPieceDragBegin={handlePieceDragBegin}
-              areArrowsAllowed={true}
-              clearPremovesOnRightClick={true}
-              promotionDialogVariant={"vertical"}
-              customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
-              customLightSquareStyle={{ backgroundColor: "#222" }}
+      <ToastContainer />
+      <div className="chess-main-container">
+        <div className="menu-train">
+          <Menu />
+        </div>
+        <div className="chess-content">
+          <div className="player-info player-white">
+            <Player
+              autoplay
+              loop
+              src={lottieBlackPlayer}
+              style={{ width: "70px", height: "70px" }}
+              className="pictures-train"
             />
+            <div className="player-details">
+              <div className="player-name">
+                <p>Stockfish</p>
+              </div>
+              <div className="captured-pieces">
+                <div className="captured-list">
+                  {capturedByBlack.map((piece, index) => (
+                    <FontAwesomeIcon
+                      key={index}
+                      icon={pieceIcons[piece as keyof typeof pieceIcons]}
+                      color="grey"
+                      className="captured-piece-icon"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <Chessboard
+            position={game.fen()}
+            onPieceDrop={handleMove}
+            onPieceDragBegin={handlePieceDragBegin}
+            areArrowsAllowed={true}
+            clearPremovesOnRightClick={true}
+            promotionDialogVariant={"vertical"}
+            customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+            customLightSquareStyle={{ backgroundColor: "#222" }}
+            snapToCursor={true}
+          />
+          <div className="player-info player-black">
+            <Player
+              autoplay
+              loop
+              src={lottieBlackPlayer}
+              style={{ width: "70px", height: "70px" }}
+              className="pictures-train"
+            />
+            <div className="player-details">
+              <div className="player-name">
+                <p>White</p>
+              </div>
+              <div className="captured-pieces">
+                <div className="captured-list">
+                  {capturedByWhite.map((piece, index) => (
+                    <FontAwesomeIcon
+                      key={index}
+                      icon={pieceIcons[piece as keyof typeof pieceIcons]}
+                      color="white"
+                      className="captured-piece-icon"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="left-content">
-          <List
-            rootClassName="train-header"
-            header={
-              <h2 className="list-header">
-                <FontAwesomeIcon icon={faChartBar} className="header-icon" />{" "}
-                Game Information
-              </h2>
-            }
-            bordered
-            className="custom-list"
-            dataSource={[
-              {
-                title: "Current Turn",
-                icon: game.turn() === "w" ? faChessPawn : faChessPawn,
-                color: game.turn() === "w" ? "#000000" : "#ffffff",
-                text: game.turn() === "w" ? "White" : "Black",
-              },
-              {
-                title: "Check",
-                icon: game.isCheck() ? faCheck : faTimes,
-                color: game.isCheck() ? "#52c41a" : "#f5222d",
-                text: game.isCheck() ? "Check!" : "No Check",
-              },
-              {
-                title: "CheckMate",
-                icon: game.isCheckmate() ? faCheck : faTimes,
-                color: game.isCheckmate() ? "#fa8c16" : "#f5222d",
-                text: game.isCheckmate() ? "Checkmate!" : "No Checkmate",
-              },
-              {
-                title: "Draw",
-                icon: game.isDraw() ? faCheck : faTimes,
-                color: game.isDraw() ? "#fa8c16" : "#f5222d",
-                text: game.isDraw() ? "Draw!" : "No Draw",
-              },
-              {
-                title: "Game Over",
-                icon: game.isGameOver() ? faCheck : faTimes,
-                color: game.isGameOver() ? "#fa8c16" : "#f5222d",
-                text: game.isGameOver() ? "Game Over!" : "Not Over",
-              },
-            ]}
-            renderItem={(item) => (
-              <List.Item className="custom-list-item">
-                <List.Item.Meta
-                  avatar={
-                    <FontAwesomeIcon
-                      icon={item.icon}
-                      color={item.color}
-                      className="item-icon"
-                    />
-                  }
-                  title={
-                    <span className="custom-list-item-title">{item.title}</span>
-                  }
-                  description={
-                    <span className="custom-list-item-text">{item.text}</span>
-                  }
-                />
-              </List.Item>
-            )}
-            style={{
-              backgroundColor: "#222",
-              margin: "auto",
-              maxWidth: "fit-content",
-            }}
+        <div className="move-history-container">
+          <h1 className="stockfish-name">Stockfish</h1>
+          <Player
+            hover
+            className="right-icon"
+            src={lottieBlackPlayer}
+            style={{ width: "200px", height: "200px" }}
           />
+          <div className="move-history">
+            <div className="opening-information">
+              <p className="opening">{Opening}</p>
+              <p className="opening">{Variation}</p>
+            </div>
+            <ul>
+              {moveHistory
+                .reduce((rows, move, index) => {
+                  const rowIndex = Math.floor(index / 2);
+                  if (!rows[rowIndex]) rows[rowIndex] = [];
+                  rows[rowIndex].push(move);
+                  return rows;
+                }, [] as Move[][])
+                .map((row, rowIndex) => (
+                  <li
+                    key={rowIndex}
+                    style={{
+                      display: "flex",
+                      justifyContent:
+                        row.length === 1 ? "flex-start" : "space-between",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flex: 1,
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      {row.map((move, moveIndex) => (
+                        <span
+                          key={moveIndex}
+                          style={{
+                            marginLeft:
+                              rowIndex % 2 === 0 && moveIndex === 1
+                                ? "auto"
+                                : "0",
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={
+                              pieceIcons[move.piece as keyof typeof pieceIcons]
+                            }
+                          />{" "}
+                          {move.to}
+                        </span>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <Button
+            type="primary"
+            style={{ backgroundColor: "#222" }}
+            danger
+            onClick={showNewGameModal}
+          >
+            New Game
+          </Button>
+          <Modal
+            title="New Game"
+            visible={isModalVisible}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            cancelText="Continue game"
+            okText="Reset Game"
+          >
+            <p>
+              Are you sure you want to start a new game? This will reset the
+              current game.
+            </p>
+          </Modal>
+          <Modal
+            title="Resume Game"
+            visible={resumeModalVisible}
+            onOk={handleResumeGame}
+            onCancel={handleCancelResume}
+            cancelText="New Game"
+            okText="Continue game"
+          >
+            <p>Do you want to resume your previous game or start a new one?</p>
+          </Modal>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import Swal from "sweetalert";
 
 const LoginForm = () => {
   const [loginInput, setLoginInput] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -33,20 +33,37 @@ const LoginForm = () => {
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      if (loginInput.email !== "" && loginInput.password !== "") {
-        const url = `http://192.168.0.248:8000/login`;
-        const response = await axios.post(url, {
-          email: loginInput.email,
-          password: loginInput.password,
-          totp_code: "",
+      if (loginInput.username !== "" && loginInput.password !== "") {
+        const formData = new FormData();
+        formData.append("username", loginInput.username);
+        formData.append("password", loginInput.password);
+
+        const response = await fetch("http://192.168.0.248:8000/login", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
         });
-        localStorage.setItem("token", response.data.access_token);
-        navigate("/main");
+
+        if (response.ok) {
+          navigate("/main");
+        } else {
+          const errorData = await response.text();
+          Swal({
+            icon: "error",
+            title: "Oops...",
+            text: `The account details are incorrect! ${errorData}`,
+          });
+        }
       } else {
         throw new Error("Please provide valid input");
       }
     } catch (error) {
-      alert("The account details are incorrect!");
+      console.error("Login error:", error);
+      Swal({
+        icon: "error",
+        title: "Oops...",
+        text: "The account details are incorrect!",
+      });
     }
   };
 
@@ -104,14 +121,6 @@ const LoginForm = () => {
         [name]: value,
       }));
     }
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setRegisterInput((prev) => ({
-      ...prev,
-      [name]: checked,
-    }));
   };
 
   const handleTabToggle = () => {
@@ -176,14 +185,14 @@ const LoginForm = () => {
               <div className={`sign-in-htm ${isLoginTab ? "active" : ""}`}>
                 <div className="group">
                   <label htmlFor="user-signin" className="label">
-                    Email
+                    Username
                   </label>
                   <input
                     id="user-signin"
                     type="text"
                     className="input"
-                    name="email"
-                    value={loginInput.email}
+                    name="username"
+                    value={loginInput.username}
                     onChange={(e) => handleInput(e, "login")}
                   />
                 </div>
@@ -199,15 +208,6 @@ const LoginForm = () => {
                     name="password"
                     value={loginInput.password}
                     onChange={(e) => handleInput(e, "login")}
-                  />
-                </div>
-                <div className="group">
-                  <input
-                    id="check-signin"
-                    type="checkbox"
-                    className="check"
-                    defaultChecked={registerInput.checked}
-                    onChange={handleCheckboxChange}
                   />
                 </div>
                 <div className="group">

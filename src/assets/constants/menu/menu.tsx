@@ -114,29 +114,44 @@ const Menu: React.FC = () => {
     },
   };
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
+      if (!token) {
+        console.warn("No token found in localStorage");
+        return;
+      }
+
       try {
-        const response = await fetch("http://192.168.0.164:8000/profile/get", {
+        const response = await fetch("http://192.168.0.248:8000/profile/get", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (response.ok) {
-          const data = await response.json();
-          const base64Image = data.Base64;
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(`HTTP error! Status: ${response.status}`, errorData);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const base64Image = data.Base64;
+
+        if (base64Image) {
           setProfileImage(`data:image/png;base64,${base64Image}`);
         } else {
-          throw new Error("Failed to fetch profile image");
+          console.error("Profile image data is missing");
         }
       } catch (error) {
         console.error("Error fetching profile image:", error);
       }
     };
+
     fetchProfileImage();
-  }, []);
+  }, [token]);
 
   return (
     <ConfigProvider theme={theme}>
@@ -192,8 +207,8 @@ const Menu: React.FC = () => {
                       src={profileImage}
                       alt="Profile"
                       style={{
-                        width: "120px",
-                        height: "120px",
+                        width: "95px",
+                        height: "95px",
                         borderRadius: "10px",
                         border: "2px solid #fff",
                         marginBottom: "16px",

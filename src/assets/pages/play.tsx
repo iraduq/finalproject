@@ -1,18 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Chessboard } from "react-chessboard";
 import Background from "../constants/background/background.jsx";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
-import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import "../styles/play.css";
+import Menu from "../constants/menu/menu.tsx";
 import { Chess } from "chess.js";
 import useWebSocket from "react-use-websocket";
 import gameStartSound from "../constants/sounds/game-start.mp3";
 import moveSelf from "../constants/sounds/move-self.mp3";
 import Swal from "sweetalert";
-import { Avatar, Card, Col, Row } from "antd";
-import Meta from "antd/es/card/Meta.js";
-import { SmileOutlined, FrownOutlined } from "@ant-design/icons";
+import {
+  faChessBishop,
+  faChessKing,
+  faChessKnight,
+  faChessPawn,
+  faChessQueen,
+  faChessRook,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Modal } from "antd";
+import { ThreeDots } from "react-loader-spinner";
+import Picker from "emoji-picker-react";
+import { EmojiClickData } from "emoji-picker-react";
 
 const OnlineGame = () => {
   useEffect(() => {
@@ -27,6 +35,15 @@ const OnlineGame = () => {
     audio.play();
   };
 
+  const pieceIcons = {
+    p: faChessPawn,
+    r: faChessRook,
+    n: faChessKnight,
+    b: faChessBishop,
+    q: faChessQueen,
+    k: faChessKing,
+  };
+
   const [game, setGame] = useState(new Chess());
   const [isProcessingMove, setIsProcessingMove] = useState(false);
   const [boardOrientation, setBoardOrientation] = useState<
@@ -37,13 +54,82 @@ const OnlineGame = () => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [OtherJWT, setOtherJWT] = useState("");
   const [myName, setMyName] = useState("");
-  const [myLosses, setMyLosses] = useState("");
-  const [myWins, setMyWins] = useState("");
   const [otherName, setOtherName] = useState("");
-  const [otherLosses, setOtherLosses] = useState("");
-  const [otherWins, setOtherWins] = useState("");
   const [myPicture, setMyPicture] = useState("");
   const [otherPicture, setOtherPicture] = useState("");
+  const [capturedPieces, setCapturedPieces] = useState<string[]>([]);
+  const [otherCapturedPieces, setOtherCapturedPieces] = useState<string[]>([]);
+  const [remainingTime, setRemainingTime] = useState(30);
+  const [otherRemainingTime, setOtherRemainingTime] = useState(30);
+  const [chatMessages, setChatMessages] = useState<string[]>([]);
+  const [messageInput, setMessageInput] = useState("");
+  const [drawRequest, setDrawRequest] = useState<string | null>(null);
+  const [gameEnded, setGameEnded] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadResources = () => {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    };
+
+    loadResources();
+  }, []);
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const onEmojiClick = (emojiObject: EmojiClickData) => {
+    setMessageInput((prevInput) => prevInput + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleDraw = () => {
+    const message = {
+      action: "draw_request",
+      sender: playerColor[0],
+    };
+    sendMessage(JSON.stringify(message));
+  };
+
+  const handleSendMessage = () => {
+    if (messageInput.trim() === "") return;
+
+    const message = {
+      action: "chat_message",
+      sender: playerColor[0],
+      text: messageInput,
+    };
+
+    sendMessage(JSON.stringify(message));
+    setMessageInput("");
+  };
+
+  const handleAbort = () => {
+    Modal.confirm({
+      title: "Are you sure?",
+      content: "Do you really want to abort the game?",
+      okText: "Yes",
+      cancelText: "No",
+      onOk() {
+        const message = {
+          action: "abort_request",
+          sender: playerColor[0],
+        };
+        setGameEnded("true");
+        sendMessage(JSON.stringify(message));
+      },
+      onCancel() {
+        console.log("Abort request canceled");
+      },
+    });
+  };
+
+  const handleMessageInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setMessageInput(event.target.value);
+  };
 
   const handleMove = (
     sourceSquare: string,
@@ -51,6 +137,9 @@ const OnlineGame = () => {
     piece: string
   ) => {
     if (game.turn() !== playerColor[0]) {
+      return false;
+    }
+    if (gameEnded === "True") {
       return false;
     }
 
@@ -61,19 +150,26 @@ const OnlineGame = () => {
     });
 
     if (move) {
-      setIsProcessingMove(true);
-      setGame(new Chess(game.fen()));
       const updatedFen = game.fen();
       sendMessage(
         JSON.stringify({
           action: "player_move",
           move: {
+            playerColor,
             sourceSquare,
             targetSquare,
+            capturedPieceLastMove: move.captured || null,
           },
           fen: updatedFen,
+          remainingTime: {
+            myTime: remainingTime - 0.5,
+            otherTime: otherRemainingTime,
+          },
         })
       );
+
+      setIsProcessingMove(true);
+      setGame(new Chess(game.fen()));
       setIsProcessingMove(false);
       return true;
     }
@@ -83,7 +179,7 @@ const OnlineGame = () => {
   };
 
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://192.168.0.164:8000/ws/${localStorage.getItem("token")}`,
+    `ws://192.168.0.248:8000/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -116,13 +212,61 @@ const OnlineGame = () => {
   }, [lastMessage, jwtReceived]);
 
   useEffect(() => {
+    if (jwtReceived) {
+      const fetchBothPictures = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("ERROR!");
+          throw new Error("ERROR!");
+        }
+
+        try {
+          const response = await fetch(
+            "http://192.168.0.248:8000/profile/get_both_pictures",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                myJWT: token,
+                otherJWT: OtherJWT,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error", errorData);
+            throw new Error("error");
+          }
+
+          const responseData = await response.json();
+
+          setMyName(responseData.myName);
+          setOtherName(responseData.otherName);
+          setMyPicture(
+            `data:image/jpeg;base64,${responseData.caller_profile_picture}`
+          );
+          setOtherPicture(
+            `data:image/jpeg;base64,${responseData.requested_profile_picture}`
+          );
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+
+      fetchBothPictures();
+    }
+  }, [OtherJWT, jwtReceived]);
+
+  useEffect(() => {
     if (lastMessage && typeof lastMessage.data === "string") {
       try {
         const receivedData = JSON.parse(lastMessage.data);
         if (receivedData.white_player_jwt && receivedData.black_player_jwt) {
           createGame(receivedData);
-        } else {
-          console.error("Incomplete data for game creation:", receivedData);
         }
       } catch (error) {
         console.error("Error parsing JSON:", error);
@@ -139,7 +283,7 @@ const OnlineGame = () => {
   const createGame = async (receivedData: ReceivedData) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://192.168.0.164:8000/games/create", {
+      const response = await fetch("http://192.168.0.248:8000/games/create", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -162,24 +306,118 @@ const OnlineGame = () => {
   };
 
   useEffect(() => {
-    if (
-      lastMessage &&
-      typeof lastMessage.data === "string" &&
-      jwtReceived &&
-      playerColor !== ""
-    ) {
+    if (lastMessage && typeof lastMessage.data === "string") {
       try {
         const receivedData = JSON.parse(lastMessage.data);
+
+        if (receivedData.action === "draw_request") {
+          if (receivedData.sender !== playerColor[0]) {
+            setDrawRequest(
+              `Player ${receivedData.sender} has requested a draw. Do you accept?`
+            );
+          }
+        } else if (receivedData.action === "draw_accept") {
+          setGameEnded("true");
+          Swal({
+            title: "Draw Accepted!",
+            text: "The game is now a draw.",
+            icon: "info",
+          });
+          setDrawRequest(null);
+        } else if (receivedData.action === "draw_decline") {
+          Swal({
+            title: "Draw Declined",
+            text: "The draw request has been declined.",
+            icon: "info",
+          });
+          setDrawRequest(null);
+        }
+
+        if (receivedData.action === "abort_request") {
+          if (receivedData.sender !== playerColor[0]) {
+            Swal({
+              title: "Game won",
+              text: "The other player has aborted.",
+              icon: "success",
+            });
+          } else {
+            Swal({
+              title: "Game lost",
+              text: "You have aborted the game.",
+              icon: "error",
+            });
+          }
+          setGameEnded("true");
+        }
+
+        if (receivedData.action === "chat_message") {
+          let sender = "";
+          if (receivedData.sender === playerColor[0]) {
+            sender = myName;
+          } else {
+            sender = otherName;
+          }
+
+          if (sender.trim()) {
+            setChatMessages((prevMessages) => [
+              ...prevMessages,
+              `${sender}: ${receivedData.text}`,
+            ]);
+          }
+        }
+
+        console.log("Received WebSocket message:", lastMessage.data);
         if (receivedData.action === "player_move") {
           const updatedFen = receivedData.fen;
           setGame(new Chess(updatedFen));
           playMoveSelfSound();
+
+          if (receivedData.remainingTime) {
+            setRemainingTime(receivedData.remainingTime.myTime);
+            setOtherRemainingTime(receivedData.remainingTime.otherTime);
+          }
         }
       } catch (error) {
         console.error("Error parsing JSON:", error);
       }
     }
-  }, [lastMessage, jwtReceived, playerColor]);
+  }, [lastMessage, jwtReceived, playerColor, myName, otherName]);
+
+  useEffect(() => {
+    if (lastMessage && typeof lastMessage.data === "string") {
+      try {
+        const receivedData = JSON.parse(lastMessage.data);
+
+        if (receivedData.action === "player_move" && receivedData.move) {
+          const { playerColor: movePlayerColor, capturedPieceLastMove } =
+            receivedData.move;
+
+          if (movePlayerColor !== playerColor) {
+            if (capturedPieceLastMove) {
+              setOtherCapturedPieces((prevCapturedPieces) => [
+                ...prevCapturedPieces,
+                capturedPieceLastMove,
+              ]);
+            }
+          } else {
+            if (capturedPieceLastMove) {
+              setCapturedPieces((prevCapturedPieces) => [
+                ...prevCapturedPieces,
+                capturedPieceLastMove,
+              ]);
+            }
+          }
+
+          if (receivedData.fen) {
+            setGame(new Chess(receivedData.fen));
+            playMoveSelfSound();
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+      }
+    }
+  }, [lastMessage, playerColor]);
 
   useEffect(() => {
     const handleGameOver = async () => {
@@ -266,7 +504,7 @@ const OnlineGame = () => {
           }
 
           const token = localStorage.getItem("token");
-          const response = await fetch("http://192.168.0.164:8000/games/put", {
+          const response = await fetch("http://192.168.0.248:8000/games/put", {
             method: "PUT",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -295,195 +533,201 @@ const OnlineGame = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGameFinished]);
 
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (jwtReceived) {
-      const fetchBothPictures = async () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("ERROR!");
-          throw new Error("ERROR!");
-        }
-
-        try {
-          const response = await fetch(
-            "http://192.168.0.164:8000/profile/get_both_pictures",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                myJWT: token,
-                otherJWT: OtherJWT,
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Error", errorData);
-            throw new Error("error");
-          }
-
-          const responseData = await response.json();
-
-          setMyName(responseData.myName);
-          setMyWins(responseData.myWins);
-          setMyLosses(responseData.myLosses);
-          setOtherName(responseData.otherName);
-          setOtherLosses(responseData.otherLosses);
-          setOtherWins(responseData.otherWins);
-          setMyPicture(
-            `data:image/jpeg;base64,${responseData.caller_profile_picture}`
-          );
-          setOtherPicture(
-            `data:image/jpeg;base64,${responseData.requested_profile_picture}`
-          );
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      };
-
-      fetchBothPictures();
+    if (chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [OtherJWT, jwtReceived]);
+  }, [chatMessages]);
+
+  const handleAcceptDraw = useCallback(() => {
+    const message = {
+      action: "draw_accept",
+      sender: playerColor[0],
+    };
+    sendMessage(JSON.stringify(message));
+    setDrawRequest(null);
+    setGameEnded("true");
+  }, [playerColor, sendMessage]);
+
+  const handleDeclineDraw = useCallback(() => {
+    const message = {
+      action: "draw_decline",
+      sender: playerColor[0],
+    };
+    sendMessage(JSON.stringify(message));
+    setDrawRequest(null);
+  }, [playerColor, sendMessage]);
+
+  useEffect(() => {
+    if (drawRequest) {
+      Modal.confirm({
+        title: "Draw Request",
+        content: drawRequest,
+        okText: "Accept",
+        cancelText: "Decline",
+        onOk: handleAcceptDraw,
+        onCancel: handleDeclineDraw,
+      });
+    }
+  }, [drawRequest, handleAcceptDraw, handleDeclineDraw]);
 
   return (
-    <div className="container-online">
-      <Background />
-      <div className="wrapper-online">
-        <div className="left-area-online">
-          <div className="header-online">
-            <Link to="/main">
-              <FontAwesomeIcon icon={faHouse} />
-              <span className="icon-spacing">HOME</span>
-            </Link>
-          </div>
-          <div className="chessboard-container-online">
-            <Chessboard
-              id="online-game"
-              position={game.fen()}
-              onPieceDrop={(sourceSquare, targetSquare, piece) =>
-                handleMove(sourceSquare, targetSquare, piece)
-              }
-              boardOrientation={boardOrientation || undefined}
-              onPieceDragBegin={handlePieceDragBegin}
-              promotionDialogVariant={"vertical"}
-              customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
-              customLightSquareStyle={{ backgroundColor: "#222" }}
+    <>
+      <Background></Background>
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="spinner">
+            <ThreeDots
+              height="80"
+              width="80"
+              radius="9"
+              color="#555"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
             />
-            {isProcessingMove && (
-              <div className="loading-indicator">Processing...</div>
-            )}
           </div>
         </div>
-        {jwtReceived && (
-          <div className="right-area-online">
-            <div className="game-info-container">
-              <Row gutter={[16, 16]} justify="center" align="middle">
-                <Col span={24}>
-                  <Card
-                    title="Your Info"
+      )}
+
+      {!isLoading && (
+        <div className="wrapper-online">
+          <div className="menu-train">
+            <Menu />
+          </div>
+          <div className="left-area-online">
+            <div className="player-info player-black">
+              <div className="player-details">
+                <div className="player-name">
+                  <img
+                    src={otherPicture}
+                    alt="Other Player"
                     style={{
-                      textAlign: "center",
-                      maxWidth: 300,
-                      marginBottom: 16,
+                      height: "35px",
+                      width: "35px",
                       borderRadius: "8px",
-                      boxShadow: "0 4px 8px rgba(36, 36, 36, 1)",
-                      backgroundColor: "#222",
-                      fontWeight: "900",
+                      marginRight: "16px",
                     }}
-                    bordered={false}
-                    headStyle={{ fontSize: "1.2rem", color: "white" }}
-                  >
-                    <Meta
-                      avatar={
-                        <Avatar src={myPicture} size={128} draggable="false" />
-                      }
-                      title={
-                        <h2 style={{ fontWeight: "bold", color: "white" }}>
-                          {myName}
-                        </h2>
-                      }
-                      description={
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            flexDirection: "column",
-                            alignItems: "center",
-                          }}
-                        >
-                          <h4 style={{ color: "#52c41a" }}>
-                            <SmileOutlined /> {`Wins: ${myWins}`}
-                          </h4>
-                          <h4 style={{ color: "#ff4d4f" }}>
-                            <FrownOutlined /> {`Losses: ${myLosses}`}
-                          </h4>
-                        </div>
-                      }
-                    />
-                  </Card>
-                </Col>
-                <Col span={24}>
-                  <Card
-                    title="Opponent's Info"
+                  />
+                </div>
+                <div className="details-play">
+                  <div className="player-info-content">
+                    <h2 className="player-name-text">{otherName}</h2>
+                    <p className="player-description">
+                      {otherCapturedPieces.length === 0 ? (
+                        <span>No pieces have been captured yet.</span>
+                      ) : (
+                        otherCapturedPieces.map((piece, index) => (
+                          <FontAwesomeIcon
+                            key={index}
+                            icon={pieceIcons[piece as keyof typeof pieceIcons]}
+                            color="white"
+                            className="captured-piece-icon"
+                          />
+                        ))
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="chessboard-container-online">
+              <Chessboard
+                id="online-game"
+                position={game.fen()}
+                onPieceDrop={(sourceSquare, targetSquare, piece) =>
+                  handleMove(sourceSquare, targetSquare, piece)
+                }
+                boardOrientation={boardOrientation || undefined}
+                onPieceDragBegin={handlePieceDragBegin}
+                promotionDialogVariant={"vertical"}
+                customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+                customLightSquareStyle={{ backgroundColor: "#222" }}
+                arePiecesDraggable={gameEnded !== "true"}
+              />
+
+              {isProcessingMove && (
+                <div className="loading-indicator">Processing...</div>
+              )}
+            </div>
+            <div className="player-info player-white">
+              <div className="player-details">
+                <div className="player-name">
+                  <img
+                    src={myPicture}
+                    alt="My Profile"
                     style={{
-                      textAlign: "center",
-                      maxWidth: 300,
-                      marginBottom: 16,
+                      height: "35px",
+                      width: "35px",
                       borderRadius: "8px",
-                      boxShadow: "0 4px 8px rgba(36, 36, 36, 1)",
-                      color: "white",
-                      backgroundColor: "#222",
+                      marginRight: "16px",
                     }}
-                    bordered={false}
-                    headStyle={{
-                      fontSize: "1.2rem",
-                      color: "white",
-                      fontWeight: "900",
-                    }}
-                  >
-                    <Meta
-                      avatar={
-                        <Avatar
-                          src={otherPicture}
-                          size={128}
-                          draggable="false"
-                        />
-                      }
-                      title={
-                        <h2 style={{ fontWeight: "bold", color: "white" }}>
-                          {otherName}
-                        </h2>
-                      }
-                      description={
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            flexDirection: "column",
-                            alignItems: "center",
-                          }}
-                        >
-                          <h4 style={{ color: "#52c41a" }}>
-                            <SmileOutlined /> {`Wins: ${otherWins}`}
-                          </h4>
-                          <h4 style={{ color: "#ff4d4f" }}>
-                            <FrownOutlined /> {`Losses: ${otherLosses}`}
-                          </h4>
-                        </div>
-                      }
-                    />
-                  </Card>
-                </Col>
-              </Row>
+                  />
+                </div>
+                <div className="details-play">
+                  <div className="player-info-content">
+                    <h2 className="player-name-text">{myName}</h2>
+                    <p className="player-description">
+                      {capturedPieces.length === 0 ? (
+                        <span>No pieces have been captured yet.</span>
+                      ) : (
+                        capturedPieces.map((piece, index) => (
+                          <FontAwesomeIcon
+                            key={index}
+                            icon={pieceIcons[piece as keyof typeof pieceIcons]}
+                            color="white"
+                            className="captured-piece-icon"
+                          />
+                        ))
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+          <div className="chat-container">
+            {myName && otherName && playerColor && (
+              <div className="chat-messages">
+                {chatMessages.map((msg, index) => (
+                  <div
+                    key={index}
+                    ref={chatMessagesEndRef}
+                    className="chat-message"
+                  >
+                    {msg}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="chat-input-container">
+              <input
+                type="text"
+                value={messageInput}
+                onChange={handleMessageInputChange}
+                placeholder="Type a message..."
+              />
+              <button onClick={handleSendMessage}>Send</button>
+            </div>
+            <div className="button-area">
+              <button onClick={handleDraw}>Draw</button>
+              <button onClick={handleAbort}>Abort</button>
+              <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                😀
+              </button>
+            </div>
+          </div>
+          {showEmojiPicker && (
+            <div className="emoji-picker">
+              <Picker reactionsDefaultOpen={true} onEmojiClick={onEmojiClick} />
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 };
 

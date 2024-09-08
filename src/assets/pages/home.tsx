@@ -128,21 +128,17 @@ const MainPage = () => {
               </Card>
             </Col>
           </Row>
+          <div className="bottom-banner">
+            <span className="banner-text">
+              © 2024 Techy Pythons. All rights reserved. Techy Pythons may earn
+              a portion of sales from products that are purchased through our
+              site as part of our Affiliate Partnerships with retailers. The
+              material on this site may not be reproduced, distributed,
+              transmitted, cached or otherwise used, except with the prior
+              written permission of Techy Pythons.
+            </span>
+          </div>
         </div>
-        <div
-          className="right-side-main"
-          style={{ marginLeft: "0", padding: "20px" }}
-        ></div>
-      </div>
-      <div className="bottom-banner">
-        <span className="banner-text">
-          © 2024 Techy Pythons. All rights reserved. Techy Pythons may earn a
-          portion of sales from products that are purchased through our site as
-          part of our Affiliate Partnerships with retailers. The material on
-          this site may not be reproduced, distributed, transmitted, cached or
-          otherwise used, except with the prior written permission of Techy
-          Pythons.
-        </span>
       </div>
     </div>
   );
