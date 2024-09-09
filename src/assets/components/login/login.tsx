@@ -38,11 +38,14 @@ const LoginForm = () => {
         formData.append("username", loginInput.username);
         formData.append("password", loginInput.password);
 
-        const response = await fetch("http://192.168.0.248:8000/login", {
-          method: "POST",
-          body: formData,
-          credentials: "include",
-        });
+        const response = await fetch(
+          "https://chess-backend-jvtz.onrender.com/login",
+          {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+          }
+        );
 
         if (response.ok) {
           navigate("/main");

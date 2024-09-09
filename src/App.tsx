@@ -20,10 +20,13 @@ const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("http://192.168.0.248:8000/status", {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://chess-backend-jvtz.onrender.com/status",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
       console.log(response);
       if (response.ok) {
         setIsAuthenticated(true);
