@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -15,66 +15,54 @@ import ContactPage from "../src/assets/pages/contact.tsx";
 import PuzzleGame from "./assets/pages/puzzle.tsx";
 import CustomTable from "./assets/pages/profile.tsx";
 
-const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch(
-        "https://chess-backend-jvtz.onrender.com/status",
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      console.log(response);
-      if (response.ok) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error("Error checking authentication", error);
-      setIsAuthenticated(false);
-    }
+const App: React.FC = () => {
+  const isAuthenticated = () => {
+    return !!localStorage.getItem("token");
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const ProtectedRoute = ({
+    element,
+  }: {
+    element: JSX.Element;
+    path: string;
+  }) => {
+    return isAuthenticated() ? element : <Navigate to="/login" />;
+  };
 
-  return isAuthenticated ? element : <Navigate to="/login" />;
-};
-
-const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<ProtectedRoute element={<MainPage />} />} />
+        <Route
+          path="/"
+          element={<ProtectedRoute element={<MainPage />} path="/login" />}
+        />
         <Route
           path="/main"
-          element={<ProtectedRoute element={<MainPage />} />}
+          element={<ProtectedRoute element={<MainPage />} path="/main" />}
         />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/train"
-          element={<ProtectedRoute element={<TrainingPage />} />}
+          element={<ProtectedRoute element={<TrainingPage />} path="/train" />}
         />
         <Route
           path="/tutorial"
-          element={<ProtectedRoute element={<Tutorial />} />}
+          element={<ProtectedRoute element={<Tutorial />} path="/tutorial" />}
         />
+
         <Route
           path="/profile"
-          element={<ProtectedRoute element={<CustomTable />} />}
+          element={<ProtectedRoute element={<CustomTable />} path="/profile" />}
         />
         <Route
           path="/about"
-          element={<ProtectedRoute element={<AboutComponent />} />}
+          element={
+            <ProtectedRoute element={<AboutComponent />} path="/about" />
+          }
         />
         <Route
           path="/online"
-          element={<ProtectedRoute element={<OnlineGame />} />}
+          element={<ProtectedRoute element={<OnlineGame />} path="/online" />}
         />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/puzzle" element={<PuzzleGame />} />

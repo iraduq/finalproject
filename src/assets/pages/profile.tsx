@@ -43,6 +43,7 @@ import "./profile.css";
 import { Menu } from "antd";
 import Background from "../constants/background/background";
 import { UploadChangeParam } from "antd/es/upload";
+import CONFIG from "../../config";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -177,7 +178,7 @@ const SideNav: React.FC<{ refs: RefsType }> = ({ refs }) => {
     const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
       try {
-        const response = await fetch("http://192.168.0.248:8000/profile/get", {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/profile/get`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -439,7 +440,7 @@ const Profile: React.FC = () => {
     const token = localStorage.getItem("token");
     const fetchProfileImage = async () => {
       try {
-        const response = await fetch("http://192.168.0.248:8000/profile/get", {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/profile/get`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -466,7 +467,7 @@ const Profile: React.FC = () => {
 
   const props = {
     name: "file",
-    action: "http://192.168.0.248:8000/profile/upload/",
+    action: `${CONFIG.API_BASE_URL}/profile/upload`,
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -513,7 +514,7 @@ const Profile: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "http://192.168.0.248:8000/profile/update_description",
+        `${CONFIG.API_BASE_URL}/profile/update_description`,
         {
           method: "PUT",
           headers: {

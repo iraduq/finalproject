@@ -13,7 +13,6 @@ import {
 import "./menu.css";
 
 const { Sider } = Layout;
-const { SubMenu } = AntMenu;
 
 const Menu: React.FC = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -25,37 +24,32 @@ const Menu: React.FC = () => {
     navigate("/login");
   };
 
-  const commonItemStyle = {
-    fontSize: "16px",
-    color: "#ffffff",
-    borderRadius: "50px",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
+  const iconStyle = {
+    color: "#555",
+    transition: "color 0.3s",
+    fontWeight: "300",
   };
-
-  const iconStyle = { color: "#333" };
 
   const items = [
     {
-      label: "Play",
+      label: <span className="custom-menu-label">Play</span>,
       key: "play",
       icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
       children: [
         {
-          label: "Online",
+          label: <span className="custom-menu-label">Online</span>,
           key: "play_online",
           icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
           onClick: () => navigate("/online"),
         },
         {
-          label: "Play vs Bot",
+          label: <span className="custom-menu-label">Play vs Bot</span>,
           key: "play_bot",
           icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
           onClick: () => navigate("/train"),
         },
         {
-          label: "Puzzle",
+          label: <span className="custom-menu-label">Puzzle</span>,
           key: "puzzle",
           icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
           onClick: () => navigate("/puzzle"),
@@ -63,31 +57,31 @@ const Menu: React.FC = () => {
       ],
     },
     {
-      label: "Learn",
+      label: <span className="custom-menu-label">Learn</span>,
       key: "learn",
       icon: <FontAwesomeIcon icon={faBook} style={iconStyle} />,
       onClick: () => navigate("/tutorial"),
     },
     {
-      label: "Profile",
+      label: <span className="custom-menu-label">Profile</span>,
       key: "profile",
       icon: <FontAwesomeIcon icon={faUser} style={iconStyle} />,
       onClick: () => navigate("/profile"),
     },
     {
-      label: "Contact",
+      label: <span className="custom-menu-label">Contact</span>,
       key: "contact",
       icon: <FontAwesomeIcon icon={faEnvelope} style={iconStyle} />,
       onClick: () => navigate("/contact"),
     },
     {
-      label: "About Us",
+      label: <span className="custom-menu-label">About us</span>,
       key: "about",
       icon: <FontAwesomeIcon icon={faInfoCircle} style={iconStyle} />,
       onClick: () => navigate("/about"),
     },
     {
-      label: "Log Out",
+      label: <span className="custom-menu-label">Log Out</span>,
       key: "logout",
       icon: <FontAwesomeIcon icon={faSignOutAlt} style={iconStyle} />,
       onClick: handleLogout,
@@ -105,7 +99,7 @@ const Menu: React.FC = () => {
     components: {
       Menu: {
         itemSelectedBg: "transparent",
-        itemHoverBg: "transparent",
+        itemHoverBg: "rgba(255, 255, 255, 0.1)",
         submenuBg: "transparent",
       },
       Layout: {
@@ -207,11 +201,12 @@ const Menu: React.FC = () => {
                       src={profileImage}
                       alt="Profile"
                       style={{
-                        width: "95px",
-                        height: "95px",
-                        borderRadius: "10px",
+                        width: "100px",
+                        height: "100px",
+                        borderRadius: "50%",
                         border: "2px solid #fff",
                         marginBottom: "16px",
+                        objectFit: "cover",
                       }}
                     />
                   ) : (
@@ -220,8 +215,11 @@ const Menu: React.FC = () => {
                       style={{
                         backgroundColor: "#222",
                         color: "#fff",
-                        borderRadius: "0",
+                        borderRadius: "20%",
                         marginBottom: "16px",
+                        border: "2px solid #333",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                        padding: "10px",
                       }}
                     />
                   )}
@@ -230,46 +228,13 @@ const Menu: React.FC = () => {
             )}
             <AntMenu
               mode="inline"
+              items={items}
               style={{
                 backgroundColor: "transparent",
                 borderRight: "none",
                 flexGrow: 1,
               }}
-            >
-              {items.map((item) =>
-                item.children ? (
-                  <SubMenu
-                    key={item.key}
-                    title={item.label}
-                    icon={item.icon}
-                    className="submenu-right"
-                    popupClassName="submenu-popup"
-                    style={commonItemStyle}
-                  >
-                    {item.children.map((child) => (
-                      <AntMenu.Item
-                        className="iteme"
-                        key={child.key}
-                        icon={child.icon}
-                        onClick={child.onClick}
-                        style={commonItemStyle}
-                      >
-                        {child.label}
-                      </AntMenu.Item>
-                    ))}
-                  </SubMenu>
-                ) : (
-                  <AntMenu.Item
-                    key={item.key}
-                    icon={item.icon}
-                    onClick={item.onClick}
-                    style={commonItemStyle}
-                  >
-                    {item.label}
-                  </AntMenu.Item>
-                )
-              )}
-            </AntMenu>
+            />
           </div>
         </Sider>
         <Layout style={{ marginLeft: collapsed ? 0 : 0 }}></Layout>

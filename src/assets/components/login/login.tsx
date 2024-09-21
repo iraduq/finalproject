@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import Swal from "sweetalert";
+import CONFIG from "../../../config";
 
 const LoginForm = () => {
   const [loginInput, setLoginInput] = useState({
@@ -38,16 +39,17 @@ const LoginForm = () => {
         formData.append("username", loginInput.username);
         formData.append("password", loginInput.password);
 
-        const response = await fetch(
-          "https://chess-backend-jvtz.onrender.com/login",
-          {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`${CONFIG.API_BASE_URL}/login`, {
+          method: "POST",
+          body: formData,
+        });
 
         if (response.ok) {
+          const responseData = await response.json();
+          const jwtToken = responseData.access_token;
+
+          localStorage.setItem("token", jwtToken);
+
           navigate("/main");
         } else {
           const errorData = await response.text();
@@ -81,7 +83,7 @@ const LoginForm = () => {
         registerInput.password === registerInput.repeatPassword &&
         emailValid
       ) {
-        const url = `http://192.168.0.248:8000/create_user`;
+        const url = `${CONFIG.API_BASE_URL}/create_user`;
         const response = await axios.post(url, {
           username: registerInput.username,
           password: registerInput.password,

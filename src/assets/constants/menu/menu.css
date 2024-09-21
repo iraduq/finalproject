@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap");
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -57,4 +59,10 @@
 .custom-sider .ant-layout-sider-zero-width-trigger:hover {
   background-color: #222 !important;
   color: #197221 !important;
+}
+
+.custom-menu-label {
+  font-family: "Montserrat", sans-serif;
+  color: #ffffff;
+  font-weight: 500;
 }

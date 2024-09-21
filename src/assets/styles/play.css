@@ -1,6 +1,10 @@
 @import url("https://fonts.googleapis.com/css?family=Oswald");
 @import url("https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap");
 
+body {
+  overflow: hidden;
+}
+
 .container-online {
   position: relative;
 }
@@ -10,7 +14,7 @@
 }
 .wrapper-online {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
 }
 .first-clock,
 .second-clock img {
@@ -34,17 +38,6 @@
   align-items: center;
 }
 
-.chessboard-container-online {
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  height: 0;
-  padding-bottom: 100%;
-  position: relative;
-  overflow: hidden;
-  max-width: 800px;
-  min-width: 800px;
-}
 .icon-spacing {
   margin-left: 0.2em;
 }
@@ -79,20 +72,6 @@
 .icon-with-text lord-icon {
   margin-right: 10px;
 }
-/* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (max-width: 600px) {
-  .chessboard-container-online {
-    height: 30vh;
-    width: 40vh;
-    min-width: initial;
-  }
-  .right-area-online {
-    display: none;
-  }
-  .left-area-online {
-    margin: 0 auto;
-  }
-}
 
 .grey-dot {
   position: absolute;
@@ -105,46 +84,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-}
-
-/* Medium devices (landscape tablets, 768px and up) */
-@media only screen and (min-width: 600px) {
-  .chessboard-container-online {
-    height: 60vh;
-    width: 60vh;
-    min-width: initial;
-  }
-  .right-area-online {
-    display: none;
-  }
-  .left-area-online {
-    margin: 0 auto;
-  }
-} /* Large devices (laptops/desktops, 992px and up) */
-@media only screen and (min-width: 992px) {
-  .chessboard-container-online {
-    height: 80vh;
-    width: 80vh;
-    min-width: initial;
-  }
-  .left-area-online {
-    margin: 0 auto;
-  }
-}
-
-/* Extra large devices (large laptops and desktops, 1200px and up) */
-@media only screen and (min-width: 1400px) {
-  .left-area-online {
-    margin-left: 10%;
-  }
-  .right-area-online {
-    display: block;
-    margin-right: 20%;
-    height: 30vh;
-    width: 30vh;
-    margin-bottom: 15%;
-    margin-left: -10%;
-  }
 }
 
 .right-area-online {
@@ -248,7 +187,8 @@
   justify-content: center;
 }
 
-.player-details {
+.player-details,
+.player-details-online {
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -372,19 +312,6 @@
 .button-area button {
   margin-left: 10px;
 }
-@media (max-width: 768px) {
-  .wrapper-online {
-    flex-direction: column;
-  }
-
-  .left-area-online {
-    margin-bottom: 20px;
-  }
-
-  .chat-container {
-    max-width: 100%;
-  }
-}
 
 .loading-overlay {
   display: flex;
@@ -403,4 +330,398 @@
   left: 30%;
   bottom: 20%;
   z-index: 1000;
+}
+
+@media only screen and (max-width: 1024px) {
+  .wrapper-online {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .menu-train {
+    width: 0%;
+  }
+
+  .left-area-online {
+    margin: 0 auto;
+  }
+  .header-online {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+  }
+
+  .chessboard-container-online {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .menu-train {
+    z-index: 9999;
+  }
+  .player-info-content .game-info-container {
+    height: auto;
+    font-size: 1em;
+    margin-top: 20px;
+  }
+
+  .player-details img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .chat-container {
+    display: none;
+  }
+
+  .emoji-picker {
+    display: none;
+  }
+
+  .chat-input-container input {
+    padding: 8px;
+  }
+
+  .chat-input-container button {
+    padding: 8px 15px;
+  }
+
+  .button-area button {
+    width: 45%;
+    margin-left: 5px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .wrapper-online {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .menu-train {
+    width: 0%;
+  }
+
+  .left-area-online {
+    width: 95%;
+    margin: 0 auto;
+  }
+  .header-online {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .chessboard-container-online {
+    width: 100%;
+    max-width: 1024px;
+  }
+
+  .menu-train {
+    z-index: 9999;
+  }
+  .player-info-content .game-info-container {
+    height: auto;
+    font-size: 1em;
+    margin-top: 20px;
+  }
+
+  .player-details img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .chat-container {
+    display: none;
+  }
+
+  .emoji-picker {
+    display: none;
+  }
+
+  .chat-input-container input {
+    padding: 8px;
+  }
+
+  .chat-input-container button {
+    padding: 8px 15px;
+  }
+
+  .button-area button {
+    width: 45%;
+    margin-left: 5px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .wrapper-online {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .left-area-online {
+    width: 95%;
+    margin: 0 auto;
+  }
+  .header-online {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .chessboard-container-online {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .menu-train {
+    z-index: 9999;
+  }
+  .player-info-content .game-info-container {
+    height: auto;
+    font-size: 1em;
+    margin-top: 20px;
+  }
+
+  .player-details img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .chat-container {
+    display: none;
+  }
+
+  .emoji-picker {
+    display: none;
+  }
+
+  .chat-input-container input {
+    padding: 8px;
+  }
+
+  .chat-input-container button {
+    padding: 8px 15px;
+  }
+
+  .button-area button {
+    width: 45%;
+    margin-left: 5px;
+  }
+}
+
+@media only screen and (min-width: 1025px) {
+  .wrapper-online {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .menu-train {
+    width: 0%;
+  }
+
+  .left-area-online {
+    width: 35%;
+    margin: 0 auto;
+  }
+
+  .header-online {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .chessboard-container-online {
+    max-width: 1000px;
+  }
+
+  .menu-train {
+    z-index: 9999;
+  }
+
+  .player-info-content .game-info-container {
+    height: auto;
+    font-size: 1em;
+    margin-top: 20px;
+  }
+
+  .player-details img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .chat-input-container input {
+    padding: 8px;
+  }
+
+  .chat-input-container button {
+    padding: 8px 15px;
+  }
+
+  .button-area button {
+    width: 45%;
+    margin-left: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-puzzle {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+  }
+
+  .wrapper-puzzle {
+    width: 100%;
+    margin-top: 30%;
+  }
+
+  .left-puzzle {
+    width: 90%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .chessboard-container-puzzle {
+    border: 3px solid #222;
+    width: 100%;
+    height: auto;
+  }
+
+  .right-puzzle {
+    width: 100%;
+    margin: 0 auto;
+  }
+  .right-side {
+    margin: 0;
+  }
+
+  .next-solution {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .turn-indicator {
+    max-height: 50px;
+    max-width: 50px;
+    padding: 0;
+    font-size: 1vh;
+    text-align: center;
+    margin: 1px;
+  }
+
+  .menu-puzzle {
+    width: 0%;
+    z-index: 9999;
+  }
+
+  .wrapper-total {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button-puzzle {
+    max-height: 50px;
+    max-width: 50px;
+    margin: 1px;
+    font-size: 1vh !important;
+  }
+
+  .small-svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .pawnProperties {
+    height: 20px;
+    width: 20px;
+  }
+  .next-solution {
+    margin-top: 20px;
+    width: 10%;
+  }
+}
+
+@media (min-width: 769px) {
+  .container-puzzle {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .right-puzzle {
+    display: flex;
+    flex-direction: column;
+  }
+  .left-puzzle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 90%;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .chessboard-container-puzzle {
+    max-width: 500px;
+    border: 3px solid #222;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .next-solution {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .turn-indicator {
+    max-height: 40px;
+    max-width: 40px;
+    padding: 0;
+    font-size: 2vh;
+    text-align: center;
+  }
+
+  .menu-puzzle {
+    width: 0%;
+    z-index: 9999;
+  }
+
+  .wrapper-total {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button-puzzle {
+    max-height: 40px;
+    max-width: 40px;
+    margin: 1px;
+    font-size: 2vh !important;
+  }
+
+  .small-svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .pawnProperties {
+    height: 20px;
+    width: 20px;
+  }
+  .next-solution {
+    margin-top: 5px;
+    width: 1%;
+  }
 }

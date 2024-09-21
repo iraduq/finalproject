@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
-import { faChessPawn, faHouse } from "@fortawesome/free-solid-svg-icons";
+import { faChessPawn } from "@fortawesome/free-solid-svg-icons";
 import { Chess } from "chess.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,6 +10,7 @@ import moveSelf from "../constants/sounds/move-self.mp3";
 import { Button, Modal } from "antd";
 import { UserOutlined, CrownOutlined } from "@ant-design/icons";
 import wrongSound from "../constants/sounds/wrong.mp3";
+import Menu from "../constants/menu/menu";
 type PlayerColor = "w" | "b";
 
 interface WelcomeModalProps {
@@ -346,11 +346,12 @@ const PuzzleGame = () => {
   }
 
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
+    console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
+
     if (!game) {
       console.warn("No game available");
       return;
     }
-    console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
 
     const allMoves = game.moves({ verbose: true });
 
@@ -360,6 +361,7 @@ const PuzzleGame = () => {
       console.log("Legal moves for the picked up piece:");
       pieceMoves.forEach((move, index) => {
         console.log(`Move ${index + 1}:`);
+
         const targetSquareElement = document.querySelector<HTMLElement>(
           `[data-square="${move.to}"]`
         );
@@ -372,12 +374,22 @@ const PuzzleGame = () => {
           greyDot.className = "grey-dot";
           targetSquareElement.appendChild(greyDot);
 
-          const handleDragEnd = () => {
+          const cleanup = () => {
             targetSquareElement.style.filter = originalFilter;
             targetSquareElement.removeChild(greyDot);
-            document.removeEventListener("dragend", handleDragEnd);
           };
-          document.addEventListener("dragend", handleDragEnd);
+
+          const handleDragEndMouse = () => {
+            cleanup();
+            document.removeEventListener("dragend", handleDragEndMouse);
+          };
+          document.addEventListener("dragend", handleDragEndMouse);
+
+          const handleDragEndTouch = () => {
+            cleanup();
+            document.removeEventListener("touchend", handleDragEndTouch);
+          };
+          document.addEventListener("touchend", handleDragEndTouch);
         } else {
           console.warn("Target square element not found");
         }
@@ -420,112 +432,117 @@ const PuzzleGame = () => {
   };
 
   return (
-    <div className="container-online-puzzle">
+    <div className="container-puzzle">
+      <Menu></Menu>
       <WelcomeModal currentPlayer={currentPlayer as PlayerColor} />
-      <div className="wrapper-online">
-        <div className="left-area-online">
-          <div className="header-online">
-            <Link to="/main">
-              <FontAwesomeIcon icon={faHouse} />
-              <span className="icon-spacing">HOME</span>
-            </Link>
-          </div>
-          <div className="chessboard-container-online">
-            <Chessboard
-              position={fen}
-              boardOrientation={orientation}
-              onPieceDrop={(sourceSquare, targetSquare) =>
-                handleMove(sourceSquare, targetSquare)
-              }
-              arePiecesDraggable={true}
-              onPieceDragBegin={handlePieceDragBegin}
-              areArrowsAllowed={true}
-              customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
-              customLightSquareStyle={{ backgroundColor: "#222" }}
-            />
+      <div className="wrapper-total">
+        <div className="wrapper-puzzle">
+          <div className="left-puzzle">
+            <div className="header-online"></div>
+            <div className="chessboard-container-puzzle">
+              <Chessboard
+                position={fen}
+                boardOrientation={orientation}
+                onPieceDrop={(sourceSquare, targetSquare) =>
+                  handleMove(sourceSquare, targetSquare)
+                }
+                arePiecesDraggable={true}
+                onPieceDragBegin={handlePieceDragBegin}
+                areArrowsAllowed={true}
+                customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+                customLightSquareStyle={{ backgroundColor: "#222" }}
+              />
 
-            <ToastContainer
-              autoClose={500}
-              style={{
-                position: "fixed",
-                left: "50%",
-              }}
-            />
+              <ToastContainer
+                autoClose={500}
+                style={{
+                  position: "fixed",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  top: "0px",
+                  zIndex: 9999,
+                }}
+                toastStyle={{
+                  margin: "0",
+                }}
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div className="right-side">
-        <div className="right-puzzle">
-          <div className="next-solution">
-            <div className="turn-indicator">
-              {game?.turn() === "w" ? (
-                <>
-                  <FontAwesomeIcon
-                    icon={faChessPawn}
-                    style={{ color: "white", fontSize: "30px" }}
-                  />
-                  <span>White</span>
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon
-                    icon={faChessPawn}
-                    style={{ color: "black", fontSize: "30px" }}
-                  />
-                  <span>Black</span>
-                </>
-              )}
-            </div>
+        <div className="right-side">
+          <div className="right-puzzle">
+            <div className="next-solution">
+              <div className="turn-indicator">
+                {game?.turn() === "w" ? (
+                  <>
+                    <FontAwesomeIcon
+                      icon={faChessPawn}
+                      className="pawnProperties"
+                      style={{ color: "white", fontSize: "30px" }}
+                    />
+                    <span>White</span>
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon
+                      icon={faChessPawn}
+                      style={{ color: "black", fontSize: "30px" }}
+                    />
+                    <span>Black</span>
+                  </>
+                )}
+              </div>
 
-            <button onClick={handleNextSolution}>
-              <svg
-                className="css-i6dzq1"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                fill="none"
-                strokeWidth="2"
-                stroke="currentColor"
-                height="60"
-                width="60"
-                viewBox="0 0 24 24"
-              >
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-              Next Move
-            </button>
+              <button className="button-puzzle" onClick={handleNextSolution}>
+                <svg
+                  className="css-i6dzq1 small-svg"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  fill="none"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  height="60"
+                  width="60"
+                  viewBox="0 0 24 24"
+                >
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Next Move
+              </button>
+              <button className="button-puzzle" onClick={handleShowSolution}>
+                <svg
+                  className="css-i6dzq1 small-svg"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  fill="none"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  height="60"
+                  width="60"
+                  viewBox="0 0 24 24"
+                >
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Solution
+              </button>
+              <button className="button-puzzle" onClick={handleResetGame}>
+                <svg
+                  className="css-i6dzq1 small-svg"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  fill="none"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  height="60"
+                  width="60"
+                  viewBox="0 0 24 24"
+                >
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Reset Game
+              </button>
+            </div>
           </div>
-          <button onClick={handleShowSolution}>
-            <svg
-              className="css-i6dzq1"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              fill="none"
-              strokeWidth="2"
-              stroke="currentColor"
-              height="60"
-              width="60"
-              viewBox="0 0 24 24"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-            Solution
-          </button>
-          <button onClick={handleResetGame}>
-            <svg
-              className="css-i6dzq1"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              fill="none"
-              strokeWidth="2"
-              stroke="currentColor"
-              height="60"
-              width="60"
-              viewBox="0 0 24 24"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-            Reset Game
-          </button>
         </div>
       </div>
     </div>

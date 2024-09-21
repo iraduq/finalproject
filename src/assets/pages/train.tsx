@@ -105,12 +105,10 @@ function ChessComponent() {
   const handleOk = () => {
     setIsModalVisible(false);
     resetGame();
-    console.log("Started a new game and closed new game modal.");
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    console.log("Closed new game modal.");
   };
 
   const resetGame = () => {
@@ -129,7 +127,6 @@ function ChessComponent() {
     localStorage.removeItem("ECO");
     localStorage.removeItem("Opening");
     localStorage.removeItem("Variation");
-    playGameStartSound();
   };
 
   const handleResumeGame = () => {
@@ -170,8 +167,6 @@ function ChessComponent() {
     setECO(savedECO || "");
     setOpening(savedOpening || "");
     setVariation(savedVariation || " ");
-
-    console.log("Game resumed and state restored.");
   };
 
   const handleCancelResume = () => {
@@ -195,15 +190,6 @@ function ChessComponent() {
     });
   };
 
-  const playGameStartSound = () => {
-    const gameStartSound = new Audio(
-      "https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3"
-    );
-    gameStartSound.play().catch((error) => {
-      console.error("Error playing game start sound:", error);
-    });
-  };
-
   const playGameEndSound = () => {
     const delay = 500;
     setTimeout(() => {
@@ -214,10 +200,6 @@ function ChessComponent() {
       });
     }, delay);
   };
-
-  useEffect(() => {
-    playGameStartSound();
-  }, []);
 
   useEffect(() => {
     if (game.isGameOver()) {
@@ -293,7 +275,6 @@ function ChessComponent() {
     localStorage.setItem("ECO", "");
     localStorage.setItem("Opening", Opening);
     localStorage.setItem("Variation", Variation);
-    console.log("Saved game state to localStorage.");
   }, [
     game,
     moveHistory,
@@ -449,23 +430,24 @@ function ChessComponent() {
     });
   };
 
-  const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
-    console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
-
+  const handlePieceDragBegin = (_sourceSquare: string, piece: string) => {
     const allMoves = game.moves({ verbose: true });
 
     const pieceMoves = allMoves.filter((move) => move.from === piece);
 
     if (pieceMoves.length > 0) {
-      console.log("Legal moves for the picked up piece:");
-      pieceMoves.forEach((move, index) => {
-        console.log(`Move ${index + 1}:`);
-
+      pieceMoves.forEach((move) => {
         const targetSquareElement = document.querySelector<HTMLElement>(
           `[data-square="${move.to}"]`
         );
 
         if (targetSquareElement) {
+          const existingGreyDot =
+            targetSquareElement.querySelector(".grey-dot");
+          if (existingGreyDot) {
+            targetSquareElement.removeChild(existingGreyDot);
+          }
+
           const originalFilter = targetSquareElement.style.filter;
           targetSquareElement.style.filter = "brightness(100%)";
 
@@ -475,16 +457,22 @@ function ChessComponent() {
 
           const handleDragEnd = () => {
             targetSquareElement.style.filter = originalFilter;
-            targetSquareElement.removeChild(greyDot);
+            const greyDotToRemove =
+              targetSquareElement.querySelector(".grey-dot");
+            if (greyDotToRemove) {
+              targetSquareElement.removeChild(greyDotToRemove);
+            }
+
             document.removeEventListener("dragend", handleDragEnd);
+            document.removeEventListener("touchend", handleDragEnd);
           };
+
           document.addEventListener("dragend", handleDragEnd);
+          document.addEventListener("touchend", handleDragEnd);
         } else {
           console.warn("Target square element not found");
         }
       });
-    } else {
-      console.log("No legal moves available for the picked up piece.");
     }
   };
 
@@ -695,7 +683,7 @@ function ChessComponent() {
           </Button>
           <Modal
             title="New Game"
-            visible={isModalVisible}
+            open={isModalVisible}
             onOk={handleOk}
             onCancel={handleCancel}
             cancelText="Continue game"
@@ -708,7 +696,7 @@ function ChessComponent() {
           </Modal>
           <Modal
             title="Resume Game"
-            visible={resumeModalVisible}
+            open={resumeModalVisible}
             onOk={handleResumeGame}
             onCancel={handleCancelResume}
             cancelText="New Game"

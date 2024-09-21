@@ -21,6 +21,8 @@ import { Modal } from "antd";
 import { ThreeDots } from "react-loader-spinner";
 import Picker from "emoji-picker-react";
 import { EmojiClickData } from "emoji-picker-react";
+import ipAdress from "../../adress.ts";
+import CONFIG from "../../config.ts";
 
 const OnlineGame = () => {
   useEffect(() => {
@@ -179,7 +181,7 @@ const OnlineGame = () => {
   };
 
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://192.168.0.248:8000/ws/${localStorage.getItem("token")}`,
+    `ws://${ipAdress.ip}/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -222,7 +224,7 @@ const OnlineGame = () => {
 
         try {
           const response = await fetch(
-            "http://192.168.0.248:8000/profile/get_both_pictures",
+            `${CONFIG.API_BASE_URL}/profile/get_both_pictures`,
             {
               method: "POST",
               headers: {
@@ -283,7 +285,7 @@ const OnlineGame = () => {
   const createGame = async (receivedData: ReceivedData) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://192.168.0.248:8000/games/create", {
+      const response = await fetch(`${CONFIG.API_BASE_URL}/games/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -475,12 +477,22 @@ const OnlineGame = () => {
           greyDot.className = "grey-dot";
           targetSquareElement.appendChild(greyDot);
 
-          const handleDragEnd = () => {
+          const cleanup = () => {
             targetSquareElement.style.filter = originalFilter;
             targetSquareElement.removeChild(greyDot);
-            document.removeEventListener("dragend", handleDragEnd);
           };
-          document.addEventListener("dragend", handleDragEnd);
+
+          const handleDragEndMouse = () => {
+            cleanup();
+            document.removeEventListener("dragend", handleDragEndMouse);
+          };
+          document.addEventListener("dragend", handleDragEndMouse);
+
+          const handleDragEndTouch = () => {
+            cleanup();
+            document.removeEventListener("touchend", handleDragEndTouch);
+          };
+          document.addEventListener("touchend", handleDragEndTouch);
         } else {
           console.warn("Target square element not found");
         }
@@ -504,7 +516,8 @@ const OnlineGame = () => {
           }
 
           const token = localStorage.getItem("token");
-          const response = await fetch("http://192.168.0.248:8000/games/put", {
+
+          const response = await fetch(`${CONFIG.API_BASE_URL}/games/put`, {
             method: "PUT",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -599,8 +612,8 @@ const OnlineGame = () => {
           </div>
           <div className="left-area-online">
             <div className="player-info player-black">
-              <div className="player-details">
-                <div className="player-name">
+              <div className="player-details-online">
+                <div className="player-name-online">
                   <img
                     src={otherPicture}
                     alt="Other Player"
@@ -653,7 +666,7 @@ const OnlineGame = () => {
               )}
             </div>
             <div className="player-info player-white">
-              <div className="player-details">
+              <div className="player-details-online">
                 <div className="player-name">
                   <img
                     src={myPicture}

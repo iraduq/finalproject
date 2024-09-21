@@ -218,7 +218,6 @@ h2 {
     height: 50px !important;
     width: 50px !important;
     margin: 0;
-    z-index: -1;
   }
 
   .header-online {
@@ -562,6 +561,10 @@ h2 {
 .player-details {
   margin-top: 1%;
   font-size: 0.7em;
+  flex-direction: column;
+}
+.captured-pieces {
+  align-self: flex-start;
 }
 
 .captured-piece-icon {
@@ -649,6 +652,10 @@ h2 {
   white-space: nowrap;
 }
 
+.player-name {
+  margin: 0 !important;
+}
+
 .move-history {
   background-color: transparent;
   width: auto;
@@ -692,7 +699,9 @@ h2 {
     width: 1%;
     margin: 0;
     font-size: 0.8rem;
+    z-index: 9999;
   }
+
   .pictures-train {
     height: 40px !important;
     width: 40px !important;
@@ -702,7 +711,7 @@ h2 {
     font-size: 10px;
   }
   .captured-pieces {
-    font-size: 10px !important;
+    font-size: 5px !important;
   }
   .chess-content {
     display: flex;
