@@ -23,6 +23,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert";
 import { Player } from "@lottiefiles/react-lottie-player";
+import ScaleLoader from "react-spinners/ScaleLoader";
 
 const stockfish = new Worker("./node_modules/stockfish.js/stockfish.js");
 
@@ -110,6 +111,16 @@ function ChessComponent() {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
+  const [waitingForData, setWaitingForData] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setWaitingForData(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const resetGame = () => {
     setGame(new Chess(initialFen));
@@ -544,167 +555,180 @@ function ChessComponent() {
       <Background />
       <ToastContainer />
       <div className="chess-main-container">
-        <div className="menu-train">
-          <Menu />
-        </div>
-        <div className="chess-content">
-          <div className="player-info player-white">
-            <Player
-              autoplay
-              loop
-              src={lottieBlackPlayer}
-              style={{ width: "70px", height: "70px" }}
-              className="pictures-train"
-            />
-            <div className="player-details">
-              <div className="player-name">
-                <p>Stockfish</p>
-              </div>
-              <div className="captured-pieces">
-                <div className="captured-list">
-                  {capturedByBlack.map((piece, index) => (
-                    <FontAwesomeIcon
-                      key={index}
-                      icon={pieceIcons[piece as keyof typeof pieceIcons]}
-                      color="grey"
-                      className="captured-piece-icon"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
+        {waitingForData ? (
+          <div className="waiting-message">
+            <ScaleLoader loading={waitingForData} color="#999" />
+            <p>Fetching data...</p>
           </div>
-          <Chessboard
-            position={game.fen()}
-            onPieceDrop={handleMove}
-            onPieceDragBegin={handlePieceDragBegin}
-            areArrowsAllowed={true}
-            clearPremovesOnRightClick={true}
-            promotionDialogVariant={"vertical"}
-            customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
-            customLightSquareStyle={{ backgroundColor: "#222" }}
-            snapToCursor={true}
-          />
-          <div className="player-info player-black">
-            <Player
-              autoplay
-              loop
-              src={lottieBlackPlayer}
-              style={{ width: "70px", height: "70px" }}
-              className="pictures-train"
-            />
-            <div className="player-details">
-              <div className="player-name">
-                <p>White</p>
-              </div>
-              <div className="captured-pieces">
-                <div className="captured-list">
-                  {capturedByWhite.map((piece, index) => (
-                    <FontAwesomeIcon
-                      key={index}
-                      icon={pieceIcons[piece as keyof typeof pieceIcons]}
-                      color="white"
-                      className="captured-piece-icon"
-                    />
-                  ))}
-                </div>
-              </div>
+        ) : (
+          <>
+            <div className="menu-train">
+              <Menu />
             </div>
-          </div>
-        </div>
-        <div className="move-history-container">
-          <h1 className="stockfish-name">Stockfish</h1>
-          <Player
-            hover
-            className="right-icon"
-            src={lottieBlackPlayer}
-            style={{ width: "200px", height: "200px" }}
-          />
-          <div className="move-history">
-            <div className="opening-information">
-              <p className="opening">{Opening}</p>
-              <p className="opening">{Variation}</p>
-            </div>
-            <ul>
-              {moveHistory
-                .reduce((rows, move, index) => {
-                  const rowIndex = Math.floor(index / 2);
-                  if (!rows[rowIndex]) rows[rowIndex] = [];
-                  rows[rowIndex].push(move);
-                  return rows;
-                }, [] as Move[][])
-                .map((row, rowIndex) => (
-                  <li
-                    key={rowIndex}
-                    style={{
-                      display: "flex",
-                      justifyContent:
-                        row.length === 1 ? "flex-start" : "space-between",
-                      marginBottom: "5px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flex: 1,
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      {row.map((move, moveIndex) => (
-                        <span
-                          key={moveIndex}
-                          style={{
-                            marginLeft:
-                              rowIndex % 2 === 0 && moveIndex === 1
-                                ? "auto"
-                                : "0",
-                          }}
-                        >
-                          <FontAwesomeIcon
-                            icon={
-                              pieceIcons[move.piece as keyof typeof pieceIcons]
-                            }
-                          />{" "}
-                          {move.to}
-                        </span>
+            <div className="chess-content">
+              <div className="player-info player-white">
+                <Player
+                  autoplay
+                  loop
+                  src={lottieBlackPlayer}
+                  style={{ width: "70px", height: "70px" }}
+                  className="pictures-train"
+                />
+                <div className="player-details">
+                  <div className="player-name">
+                    <p>Stockfish</p>
+                  </div>
+                  <div className="captured-pieces">
+                    <div className="captured-list">
+                      {capturedByBlack.map((piece, index) => (
+                        <FontAwesomeIcon
+                          key={index}
+                          icon={pieceIcons[piece as keyof typeof pieceIcons]}
+                          color="grey"
+                          className="captured-piece-icon"
+                        />
                       ))}
                     </div>
-                  </li>
-                ))}
-            </ul>
-          </div>
-          <Button
-            type="primary"
-            style={{ backgroundColor: "#222" }}
-            danger
-            onClick={showNewGameModal}
-          >
-            New Game
-          </Button>
-          <Modal
-            title="New Game"
-            open={isModalVisible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            cancelText="Continue game"
-            okText="Reset Game"
-          >
-            <p>
-              Are you sure you want to start a new game? This will reset the
-              current game.
-            </p>
-          </Modal>
-          <Modal
-            title="Resume Game"
-            open={resumeModalVisible}
-            onOk={handleResumeGame}
-            onCancel={handleCancelResume}
-            cancelText="New Game"
-            okText="Continue game"
-          >
-            <p>Do you want to resume your previous game or start a new one?</p>
-          </Modal>
-        </div>
+                  </div>
+                </div>
+              </div>
+              <Chessboard
+                position={game.fen()}
+                onPieceDrop={handleMove}
+                onPieceDragBegin={handlePieceDragBegin}
+                areArrowsAllowed={true}
+                clearPremovesOnRightClick={true}
+                promotionDialogVariant={"vertical"}
+                customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+                customLightSquareStyle={{ backgroundColor: "#222" }}
+                snapToCursor={true}
+              />
+              <div className="player-info player-black">
+                <Player
+                  autoplay
+                  loop
+                  src={lottieBlackPlayer}
+                  style={{ width: "70px", height: "70px" }}
+                  className="pictures-train"
+                />
+                <div className="player-details">
+                  <div className="player-name">
+                    <p>White</p>
+                  </div>
+                  <div className="captured-pieces">
+                    <div className="captured-list">
+                      {capturedByWhite.map((piece, index) => (
+                        <FontAwesomeIcon
+                          key={index}
+                          icon={pieceIcons[piece as keyof typeof pieceIcons]}
+                          color="white"
+                          className="captured-piece-icon"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="move-history-container">
+              <h1 className="stockfish-name">Stockfish</h1>
+              <Player
+                hover
+                className="right-icon"
+                src={lottieBlackPlayer}
+                style={{ width: "200px", height: "200px" }}
+              />
+              <div className="move-history">
+                <div className="opening-information">
+                  <p className="opening">{Opening}</p>
+                  <p className="opening">{Variation}</p>
+                </div>
+                <ul>
+                  {moveHistory
+                    .reduce((rows, move, index) => {
+                      const rowIndex = Math.floor(index / 2);
+                      if (!rows[rowIndex]) rows[rowIndex] = [];
+                      rows[rowIndex].push(move);
+                      return rows;
+                    }, [] as Move[][])
+                    .map((row, rowIndex) => (
+                      <li
+                        key={rowIndex}
+                        style={{
+                          display: "flex",
+                          justifyContent:
+                            row.length === 1 ? "flex-start" : "space-between",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            flex: 1,
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          {row.map((move, moveIndex) => (
+                            <span
+                              key={moveIndex}
+                              style={{
+                                marginLeft:
+                                  rowIndex % 2 === 0 && moveIndex === 1
+                                    ? "auto"
+                                    : "0",
+                              }}
+                            >
+                              <FontAwesomeIcon
+                                icon={
+                                  pieceIcons[
+                                    move.piece as keyof typeof pieceIcons
+                                  ]
+                                }
+                              />{" "}
+                              {move.to}
+                            </span>
+                          ))}
+                        </div>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+              <Button
+                type="primary"
+                style={{ backgroundColor: "#222" }}
+                danger
+                onClick={showNewGameModal}
+              >
+                New Game
+              </Button>
+              <Modal
+                title="New Game"
+                open={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                cancelText="Continue game"
+                okText="Reset Game"
+              >
+                <p>
+                  Are you sure you want to start a new game? This will reset the
+                  current game.
+                </p>
+              </Modal>
+              <Modal
+                title="Resume Game"
+                open={resumeModalVisible}
+                onOk={handleResumeGame}
+                onCancel={handleCancelResume}
+                cancelText="New Game"
+                okText="Continue game"
+              >
+                <p>
+                  Do you want to resume your previous game or start a new one?
+                </p>
+              </Modal>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

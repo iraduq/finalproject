@@ -74,7 +74,7 @@ body {
   font-family: "Poppins", sans-serif;
 }
 .contact-form {
-  background-color: #643da0;
+  background-color: #345;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(107, 68, 162, 0.1);
@@ -83,6 +83,10 @@ body {
   overflow: hidden;
 }
 
+.contact-menu {
+  width: 0%;
+  z-index: 9999;
+}
 .submit-button {
   display: flex;
   align-items: center;
@@ -156,10 +160,6 @@ body {
 
 .contact-div {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
 }
 
 .contact-content {
@@ -222,4 +222,19 @@ body {
 
 .ant-radio-inner {
   border-color: #ffffff !important;
+}
+
+.contact-menu {
+  width: 0;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: #333;
+  z-index: 9999;
+}
+
+.contact-content {
+  margin-left: auto;
+  margin-right: auto;
 }

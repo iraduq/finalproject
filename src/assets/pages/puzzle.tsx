@@ -11,6 +11,7 @@ import { Button, Modal } from "antd";
 import { UserOutlined, CrownOutlined } from "@ant-design/icons";
 import wrongSound from "../constants/sounds/wrong.mp3";
 import Menu from "../constants/menu/menu";
+import ScaleLoader from "react-spinners/ScaleLoader";
 type PlayerColor = "w" | "b";
 
 interface WelcomeModalProps {
@@ -23,7 +24,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ currentPlayer }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setOpen(true);
-    }, 1000);
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 
@@ -73,11 +74,19 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ currentPlayer }) => {
 const PuzzleGame = () => {
   const [pgn, setPgn] = useState("");
   const [fen, setFen] = useState("");
-  const [loading, setLoading] = useState(true);
   const [game, setGame] = useState<Chess | null>(null);
   const [solution, setSolution] = useState<string[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<"w" | "b">("b");
   const [orientation, setOrientation] = useState<"white" | "black">("black");
+  const [waitingForData, setWaitingForData] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setWaitingForData(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const playIllegalMoveSound = () => {
     const illegalMoveSound = new Audio(wrongSound);
@@ -98,13 +107,11 @@ const PuzzleGame = () => {
         if (puzzleData && puzzleData.game && puzzleData.game.pgn) {
           setPgn(puzzleData.game.pgn);
           setSolution(puzzleData.puzzle.solution);
-          setLoading(false);
         } else {
           throw new Error("No daily puzzle found");
         }
       } catch (error) {
         console.error("Error fetching puzzle data:", error);
-        setLoading(false);
       }
     };
 
@@ -341,10 +348,6 @@ const PuzzleGame = () => {
     }, 1000);
   };
 
-  if (loading) {
-    return <p>Loading puzzle...</p>;
-  }
-
   const handlePieceDragBegin = (sourceSquare: string, piece: string) => {
     console.log(`Started dragging piece ${piece} from square ${sourceSquare}`);
 
@@ -400,7 +403,6 @@ const PuzzleGame = () => {
   };
 
   const handleResetGame = async () => {
-    setLoading(true);
     setPuzzleCompleted(false);
 
     try {
@@ -421,130 +423,135 @@ const PuzzleGame = () => {
         setCurrentPlayer(newChess.turn() as "w" | "b");
         setFen(newChess.fen());
         setCurrentSolutionIndex(0);
-        setLoading(false);
       } else {
         throw new Error("No daily puzzle found");
       }
     } catch (error) {
       console.error("Error fetching puzzle data:", error);
-      setLoading(false);
     }
   };
 
   return (
     <div className="container-puzzle">
       <Menu></Menu>
-      <WelcomeModal currentPlayer={currentPlayer as PlayerColor} />
-      <div className="wrapper-total">
-        <div className="wrapper-puzzle">
-          <div className="left-puzzle">
-            <div className="header-online"></div>
-            <div className="chessboard-container-puzzle">
-              <Chessboard
-                position={fen}
-                boardOrientation={orientation}
-                onPieceDrop={(sourceSquare, targetSquare) =>
-                  handleMove(sourceSquare, targetSquare)
-                }
-                arePiecesDraggable={true}
-                onPieceDragBegin={handlePieceDragBegin}
-                areArrowsAllowed={true}
-                customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
-                customLightSquareStyle={{ backgroundColor: "#222" }}
-              />
-
-              <ToastContainer
-                autoClose={500}
-                style={{
-                  position: "fixed",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  top: "0px",
-                  zIndex: 9999,
-                }}
-                toastStyle={{
-                  margin: "0",
-                }}
-              />
-            </div>
-          </div>
+      {waitingForData ? (
+        <div className="waiting-message">
+          <ScaleLoader loading={waitingForData} color="#999" />
+          <p>Fetching data...</p>
         </div>
-        <div className="right-side">
-          <div className="right-puzzle">
-            <div className="next-solution">
-              <div className="turn-indicator">
-                {game?.turn() === "w" ? (
-                  <>
-                    <FontAwesomeIcon
-                      icon={faChessPawn}
-                      className="pawnProperties"
-                      style={{ color: "white", fontSize: "30px" }}
-                    />
-                    <span>White</span>
-                  </>
-                ) : (
-                  <>
-                    <FontAwesomeIcon
-                      icon={faChessPawn}
-                      style={{ color: "black", fontSize: "30px" }}
-                    />
-                    <span>Black</span>
-                  </>
-                )}
+      ) : (
+        <div className="wrapper-total">
+          <WelcomeModal currentPlayer={currentPlayer as PlayerColor} />
+          <div className="wrapper-puzzle">
+            <div className="left-puzzle">
+              <div className="header-online"></div>
+              <div className="chessboard-container-puzzle">
+                <Chessboard
+                  position={fen}
+                  boardOrientation={orientation}
+                  onPieceDrop={(sourceSquare, targetSquare) =>
+                    handleMove(sourceSquare, targetSquare)
+                  }
+                  arePiecesDraggable={true}
+                  onPieceDragBegin={handlePieceDragBegin}
+                  areArrowsAllowed={true}
+                  customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+                  customLightSquareStyle={{ backgroundColor: "#222" }}
+                />
+
+                <ToastContainer
+                  autoClose={500}
+                  style={{
+                    position: "fixed",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    top: "0px",
+                    zIndex: 9999,
+                  }}
+                  toastStyle={{
+                    margin: "0",
+                  }}
+                />
               </div>
+            </div>
+          </div>
+          <div className="right-side">
+            <div className="right-puzzle">
+              <div className="next-solution">
+                <div className="turn-indicator">
+                  {game?.turn() === "w" ? (
+                    <>
+                      <FontAwesomeIcon
+                        icon={faChessPawn}
+                        className="pawnProperties"
+                        style={{ color: "white", fontSize: "30px" }}
+                      />
+                      <span>White</span>
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon
+                        icon={faChessPawn}
+                        style={{ color: "black", fontSize: "30px" }}
+                      />
+                      <span>Black</span>
+                    </>
+                  )}
+                </div>
 
-              <button className="button-puzzle" onClick={handleNextSolution}>
-                <svg
-                  className="css-i6dzq1 small-svg"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  fill="none"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  height="60"
-                  width="60"
-                  viewBox="0 0 24 24"
-                >
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
-                Next Move
-              </button>
-              <button className="button-puzzle" onClick={handleShowSolution}>
-                <svg
-                  className="css-i6dzq1 small-svg"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  fill="none"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  height="60"
-                  width="60"
-                  viewBox="0 0 24 24"
-                >
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
-                Solution
-              </button>
-              <button className="button-puzzle" onClick={handleResetGame}>
-                <svg
-                  className="css-i6dzq1 small-svg"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  fill="none"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  height="60"
-                  width="60"
-                  viewBox="0 0 24 24"
-                >
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
-                Reset Game
-              </button>
+                <button className="button-puzzle" onClick={handleNextSolution}>
+                  <svg
+                    className="css-i6dzq1 small-svg"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    fill="none"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    height="60"
+                    width="60"
+                    viewBox="0 0 24 24"
+                  >
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  Next Move
+                </button>
+                <button className="button-puzzle" onClick={handleShowSolution}>
+                  <svg
+                    className="css-i6dzq1 small-svg"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    fill="none"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    height="60"
+                    width="60"
+                    viewBox="0 0 24 24"
+                  >
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  Solution
+                </button>
+                <button className="button-puzzle" onClick={handleResetGame}>
+                  <svg
+                    className="css-i6dzq1 small-svg"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    fill="none"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    height="60"
+                    width="60"
+                    viewBox="0 0 24 24"
+                  >
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  Reset Game
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}{" "}
     </div>
   );
 };

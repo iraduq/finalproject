@@ -14,6 +14,8 @@ import OnlineGame from "../src/assets/pages/play";
 import ContactPage from "../src/assets/pages/contact.tsx";
 import PuzzleGame from "./assets/pages/puzzle.tsx";
 import CustomTable from "./assets/pages/profile.tsx";
+import CommitsList from "./assets/pages/update.tsx";
+import CustomerReview from "./assets/pages/faq.tsx";
 
 const App: React.FC = () => {
   const isAuthenticated = () => {
@@ -64,8 +66,25 @@ const App: React.FC = () => {
           path="/online"
           element={<ProtectedRoute element={<OnlineGame />} path="/online" />}
         />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/puzzle" element={<PuzzleGame />} />
+        <Route
+          path="/update"
+          element={<ProtectedRoute element={<CommitsList />} path="/update" />}
+        />
+        <Route
+          path="/contact"
+          element={<ProtectedRoute element={<ContactPage />} path="/contact" />}
+        />
+        <Route
+          path="/puzzle"
+          element={<ProtectedRoute element={<PuzzleGame />} path="/puzzle" />}
+        />
+
+        <Route
+          path="/review"
+          element={
+            <ProtectedRoute element={<CustomerReview />} path="/review" />
+          }
+        />
       </Routes>
     </Router>
   );

@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { Player } from "@lottiefiles/react-lottie-player";
 import animationData from "../animations/contactAnimation.json";
 import Typed from "typed.js";
+import Menu from "../constants/menu/menu.tsx";
 import "../styles/contact.css";
 
 const { Title } = Typography;
@@ -85,6 +86,9 @@ const ContactForm: React.FC = () => {
 
   return (
     <div className="contact-div">
+      <div className="contact-menu">
+        <Menu />
+      </div>
       <Background />
       <div className="contact-content">
         <Row justify="center" className="contact-row">

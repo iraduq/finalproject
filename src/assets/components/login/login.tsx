@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Modal, Input } from "antd";
 import "./login.css";
 import Swal from "sweetalert";
 import CONFIG from "../../../config";
@@ -31,6 +32,12 @@ const LoginForm = () => {
   const [emailValid, setEmailValid] = useState(false);
   const navigate = useNavigate();
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDataVisible, setIsDataVisible] = useState(false);
+  const [codeInput, setCodeInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -52,11 +59,10 @@ const LoginForm = () => {
 
           navigate("/main");
         } else {
-          const errorData = await response.text();
           Swal({
             icon: "error",
             title: "Oops...",
-            text: `The account details are incorrect! ${errorData}`,
+            text: `The account details are incorrect! `,
           });
         }
       } else {
@@ -130,6 +136,44 @@ const LoginForm = () => {
 
   const handleTabToggle = () => {
     setIsLoginTab((prev) => !prev);
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleData = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleOk = async () => {
+    const formData = new FormData();
+    formData.append("username", emailInput);
+    formData.append("password", passwordInput);
+
+    const response = await fetch(`${CONFIG.API_BASE_URL}/login`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      setIsModalVisible(false);
+      setIsDataVisible(true);
+    } else {
+      Swal({
+        icon: "error",
+        title: "Oops...",
+        text: `The account details are incorrect! `,
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancelCode = () => {
+    setIsDataVisible(false);
   };
 
   useEffect(() => {
@@ -220,6 +264,15 @@ const LoginForm = () => {
                     Sign In
                   </button>
                 </div>
+                <div className="group-password">
+                  <button
+                    type="button"
+                    className="forgot-password"
+                    onClick={showModal} // Show modal when clicked
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
                 <div className="hr"></div>
                 <div className="foot-lnk"></div>
               </div>
@@ -261,7 +314,9 @@ const LoginForm = () => {
                   <div className="restrictions">
                     <div
                       className="changed-size"
-                      style={{ color: passwordLengthValid ? "green" : "red" }}
+                      style={{
+                        color: passwordLengthValid ? "green" : "red",
+                      }}
                     >
                       {passwordLengthValid ? "\u2713" : "\u2717"} At least 8
                       characters
@@ -272,8 +327,8 @@ const LoginForm = () => {
                         color: passwordUpperCaseValid ? "green" : "red",
                       }}
                     >
-                      {passwordUpperCaseValid ? "\u2713" : "\u2717"} One
-                      uppercase
+                      {passwordUpperCaseValid ? "\u2713" : "\u2717"} At least 1
+                      uppercase letter
                     </div>
                     <div
                       className="changed-size"
@@ -281,14 +336,17 @@ const LoginForm = () => {
                         color: passwordLowerCaseValid ? "green" : "red",
                       }}
                     >
-                      {passwordLowerCaseValid ? "\u2713" : "\u2717"} One
-                      lowercase
+                      {passwordLowerCaseValid ? "\u2713" : "\u2717"} At least 1
+                      lowercase letter
                     </div>
                     <div
                       className="changed-size"
-                      style={{ color: passwordDigitValid ? "green" : "red" }}
+                      style={{
+                        color: passwordDigitValid ? "green" : "red",
+                      }}
                     >
-                      {passwordDigitValid ? "\u2713" : "\u2717"} One digit
+                      {passwordDigitValid ? "\u2713" : "\u2717"} At least 1
+                      digit
                     </div>
                     <div
                       className="changed-size"
@@ -296,17 +354,17 @@ const LoginForm = () => {
                         color: passwordSpecialCharValid ? "green" : "red",
                       }}
                     >
-                      {passwordSpecialCharValid ? "\u2713" : "\u2717"} One
-                      special character (other than ' or ")
+                      {passwordSpecialCharValid ? "\u2713" : "\u2717"} At least
+                      1 special character
                     </div>
                   </div>
                 </div>
                 <div className="group">
-                  <label htmlFor="pass-repeat" className="label">
+                  <label htmlFor="pass-signup-repeat" className="label">
                     Repeat Password
                   </label>
                   <input
-                    id="pass-repeat"
+                    id="pass-signup-repeat"
                     type="password"
                     className="input"
                     data-type="password"
@@ -314,11 +372,14 @@ const LoginForm = () => {
                     value={registerInput.repeatPassword}
                     onChange={(e) => handleInput(e, "register")}
                   />
-                  <div
-                    className="changed-size"
-                    style={{ color: repeatPasswordValid ? "green" : "red" }}
-                  >
-                    {repeatPasswordValid ? "\u2713" : "\u2717"} Passwords match
+                  <div className="restrictions">
+                    <div
+                      className="changed-size"
+                      style={{ color: repeatPasswordValid ? "green" : "red" }}
+                    >
+                      {repeatPasswordValid ? "\u2713" : "\u2717"} Passwords
+                      match
+                    </div>
                   </div>
                 </div>
                 <div className="group">
@@ -327,17 +388,19 @@ const LoginForm = () => {
                   </label>
                   <input
                     id="email-signup"
-                    type="email"
+                    type="text"
                     className="input"
                     name="email"
                     value={registerInput.email}
                     onChange={(e) => handleInput(e, "register")}
                   />
-                  <div
-                    className="changed-size"
-                    style={{ color: emailValid ? "green" : "red" }}
-                  >
-                    {emailValid ? "\u2713" : "\u2717"} Valid email format
+                  <div className="restrictions">
+                    <div
+                      className="changed-size"
+                      style={{ color: emailValid ? "green" : "red" }}
+                    >
+                      {emailValid ? "\u2713" : "\u2717"} Valid email
+                    </div>
                   </div>
                 </div>
                 <div className="group">
@@ -352,6 +415,44 @@ const LoginForm = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Forgot Password"
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Send"
+        cancelText="Cancel"
+      >
+        <p>Please enter your email</p>
+        <Input
+          type="text"
+          value={emailInput}
+          onChange={(e) => setEmailInput(e.target.value)}
+          placeholder="Enter email"
+        />
+        <p>Please enter your password</p>
+        <Input
+          type="password"
+          value={passwordInput}
+          onChange={(e) => setPasswordInput(e.target.value)}
+          placeholder="Enter password"
+        />
+      </Modal>
+
+      <Modal
+        title="Forgot Password"
+        open={isDataVisible}
+        onOk={handleData}
+        onCancel={handleCancelCode}
+      >
+        <p>Please enter the code sent to your email:</p>
+        <Input
+          type="text"
+          value={codeInput}
+          onChange={(e) => setCodeInput(e.target.value)}
+          placeholder="Enter code"
+        />
+      </Modal>
     </div>
   );
 };

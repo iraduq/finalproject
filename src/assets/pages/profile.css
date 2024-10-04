@@ -20,3 +20,8 @@
 .ant-menu {
   background-color: #111 !important;
 }
+
+.ant-switch-inner {
+  background-color: #1890ff;
+  color: white;
+}

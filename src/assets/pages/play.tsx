@@ -5,7 +5,6 @@ import "../styles/play.css";
 import Menu from "../constants/menu/menu.tsx";
 import { Chess } from "chess.js";
 import useWebSocket from "react-use-websocket";
-import gameStartSound from "../constants/sounds/game-start.mp3";
 import moveSelf from "../constants/sounds/move-self.mp3";
 import Swal from "sweetalert";
 import {
@@ -18,19 +17,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Modal } from "antd";
-import { ThreeDots } from "react-loader-spinner";
+import ScaleLoader from "react-spinners/ScaleLoader";
 import Picker from "emoji-picker-react";
 import { EmojiClickData } from "emoji-picker-react";
-import ipAdress from "../../adress.ts";
 import CONFIG from "../../config.ts";
 
 const OnlineGame = () => {
-  useEffect(() => {
-    const audio = new Audio(gameStartSound);
-    audio.volume = 1;
-    audio.play();
-  }, []);
-
   const playMoveSelfSound = () => {
     const audio = new Audio(moveSelf);
     audio.volume = 1;
@@ -67,17 +59,22 @@ const OnlineGame = () => {
   const [messageInput, setMessageInput] = useState("");
   const [drawRequest, setDrawRequest] = useState<string | null>(null);
   const [gameEnded, setGameEnded] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [waitingForPlayer, setWaitingForPlayer] = useState(true);
+
+  let totalMoves = 0;
+  console.log(totalMoves);
+  // De facut daca nu se reconecteaza playerul timp de 30 secunde sa se dea game over
+  // de dat update azure
 
   useEffect(() => {
-    const loadResources = () => {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-    };
+    const timer = setTimeout(() => {
+      if (OtherJWT && otherPicture && otherName) {
+        setWaitingForPlayer(false);
+      }
+    }, 500);
 
-    loadResources();
-  }, []);
+    return () => clearTimeout(timer);
+  }, [OtherJWT, otherPicture, otherName]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -152,6 +149,7 @@ const OnlineGame = () => {
     });
 
     if (move) {
+      totalMoves++;
       const updatedFen = game.fen();
       sendMessage(
         JSON.stringify({
@@ -181,7 +179,7 @@ const OnlineGame = () => {
   };
 
   const { lastMessage, sendMessage } = useWebSocket(
-    `ws://${ipAdress.ip}/ws/${localStorage.getItem("token")}`,
+    `ws://${CONFIG.IP}/ws/${localStorage.getItem("token")}`,
     {
       onOpen: () => console.log("WebSocket connection established."),
       onError: (error) => console.error("WebSocket error:", error),
@@ -320,6 +318,8 @@ const OnlineGame = () => {
           }
         } else if (receivedData.action === "draw_accept") {
           setGameEnded("true");
+
+          //endpoint set draw
           Swal({
             title: "Draw Accepted!",
             text: "The game is now a draw.",
@@ -337,12 +337,14 @@ const OnlineGame = () => {
 
         if (receivedData.action === "abort_request") {
           if (receivedData.sender !== playerColor[0]) {
+            // endpoint de +1 game won
             Swal({
               title: "Game won",
               text: "The other player has aborted.",
               icon: "success",
             });
           } else {
+            // endpoint de +1 game lost
             Swal({
               title: "Game lost",
               text: "You have aborted the game.",
@@ -368,7 +370,6 @@ const OnlineGame = () => {
           }
         }
 
-        console.log("Received WebSocket message:", lastMessage.data);
         if (receivedData.action === "player_move") {
           const updatedFen = receivedData.fen;
           setGame(new Chess(updatedFen));
@@ -425,8 +426,15 @@ const OnlineGame = () => {
     const handleGameOver = async () => {
       if (game.isGameOver()) {
         setIsGameFinished(true);
+        //fetch de +1 game played
+        //fetch de update la move
         if (game.isCheckmate()) {
           const winner = game.turn() === "w" ? "black" : "white";
+          if (winner === playerColor[0]) {
+            // fetch() pentru win
+          } else {
+            //fetch pentru  lose
+          }
           Swal({
             title: winner === playerColor ? "Game Won!" : "Game Lost!",
             text:
@@ -441,6 +449,7 @@ const OnlineGame = () => {
           game.isThreefoldRepetition() ||
           game.isInsufficientMaterial()
         ) {
+          // endpoint  de +1 Draw
           Swal({
             title: "Draw!",
             text: "The Game is Over",
@@ -589,156 +598,157 @@ const OnlineGame = () => {
   return (
     <>
       <Background></Background>
-      {isLoading && (
-        <div className="loading-overlay">
-          <div className="spinner">
-            <ThreeDots
-              height="80"
-              width="80"
-              radius="9"
-              color="#555"
-              ariaLabel="three-dots-loading"
-              wrapperStyle={{}}
-              wrapperClass=""
-            />
-          </div>
-        </div>
-      )}
 
-      {!isLoading && (
-        <div className="wrapper-online">
-          <div className="menu-train">
-            <Menu />
-          </div>
-          <div className="left-area-online">
-            <div className="player-info player-black">
-              <div className="player-details-online">
-                <div className="player-name-online">
-                  <img
-                    src={otherPicture}
-                    alt="Other Player"
-                    style={{
-                      height: "35px",
-                      width: "35px",
-                      borderRadius: "8px",
-                      marginRight: "16px",
-                    }}
-                  />
+      {waitingForPlayer ? (
+        <div className="waiting-message">
+          <ScaleLoader loading={waitingForPlayer} color="#999" />
+          <p>Searching for another player to join...</p>
+        </div>
+      ) : (
+        <>
+          {!waitingForPlayer && (
+            <div className="wrapper-online">
+              <div className="menu-train">
+                <Menu />
+              </div>
+              <div className="left-area-online">
+                <div className="player-info player-black">
+                  <div className="player-details-online">
+                    <div className="player-name-online">
+                      <img
+                        src={otherPicture}
+                        alt="Other Player"
+                        style={{
+                          height: "35px",
+                          width: "35px",
+                          borderRadius: "8px",
+                          marginRight: "16px",
+                        }}
+                      />
+                    </div>
+                    <div className="details-play">
+                      <div className="player-info-content">
+                        <h2 className="player-name-text">{otherName}</h2>
+                        <p className="player-description">
+                          {otherCapturedPieces.length === 0 ? (
+                            <span>No pieces have been captured yet.</span>
+                          ) : (
+                            otherCapturedPieces.map((piece, index) => (
+                              <FontAwesomeIcon
+                                key={index}
+                                icon={
+                                  pieceIcons[piece as keyof typeof pieceIcons]
+                                }
+                                color="white"
+                                className="captured-piece-icon"
+                              />
+                            ))
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="details-play">
-                  <div className="player-info-content">
-                    <h2 className="player-name-text">{otherName}</h2>
-                    <p className="player-description">
-                      {otherCapturedPieces.length === 0 ? (
-                        <span>No pieces have been captured yet.</span>
-                      ) : (
-                        otherCapturedPieces.map((piece, index) => (
-                          <FontAwesomeIcon
-                            key={index}
-                            icon={pieceIcons[piece as keyof typeof pieceIcons]}
-                            color="white"
-                            className="captured-piece-icon"
-                          />
-                        ))
-                      )}
-                    </p>
+                <div className="chessboard-container-online">
+                  <Chessboard
+                    id="online-game"
+                    position={game.fen()}
+                    onPieceDrop={(sourceSquare, targetSquare, piece) =>
+                      handleMove(sourceSquare, targetSquare, piece)
+                    }
+                    boardOrientation={boardOrientation || undefined}
+                    onPieceDragBegin={handlePieceDragBegin}
+                    promotionDialogVariant={"vertical"}
+                    customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
+                    customLightSquareStyle={{ backgroundColor: "#222" }}
+                    arePiecesDraggable={gameEnded !== "true"}
+                  />
+
+                  {isProcessingMove && (
+                    <div className="loading-indicator">Processing...</div>
+                  )}
+                </div>
+                <div className="player-info player-white">
+                  <div className="player-details-online">
+                    <div className="player-name">
+                      <img
+                        src={myPicture}
+                        alt="My Profile"
+                        style={{
+                          height: "35px",
+                          width: "35px",
+                          borderRadius: "8px",
+                          marginRight: "16px",
+                        }}
+                      />
+                    </div>
+                    <div className="details-play">
+                      <div className="player-info-content">
+                        <h2 className="player-name-text">{myName}</h2>
+                        <p className="player-description">
+                          {capturedPieces.length === 0 ? (
+                            <span>No pieces have been captured yet.</span>
+                          ) : (
+                            capturedPieces.map((piece, index) => (
+                              <FontAwesomeIcon
+                                key={index}
+                                icon={
+                                  pieceIcons[piece as keyof typeof pieceIcons]
+                                }
+                                color="white"
+                                className="captured-piece-icon"
+                              />
+                            ))
+                          )}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="chessboard-container-online">
-              <Chessboard
-                id="online-game"
-                position={game.fen()}
-                onPieceDrop={(sourceSquare, targetSquare, piece) =>
-                  handleMove(sourceSquare, targetSquare, piece)
-                }
-                boardOrientation={boardOrientation || undefined}
-                onPieceDragBegin={handlePieceDragBegin}
-                promotionDialogVariant={"vertical"}
-                customDarkSquareStyle={{ backgroundColor: "#4F4F4F" }}
-                customLightSquareStyle={{ backgroundColor: "#222" }}
-                arePiecesDraggable={gameEnded !== "true"}
-              />
+              <div className="chat-container">
+                {myName && otherName && playerColor && (
+                  <div className="chat-messages">
+                    {chatMessages.map((msg, index) => (
+                      <div
+                        key={index}
+                        ref={chatMessagesEndRef}
+                        className="chat-message"
+                      >
+                        {msg}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              {isProcessingMove && (
-                <div className="loading-indicator">Processing...</div>
+                <div className="chat-input-container">
+                  <input
+                    type="text"
+                    value={messageInput}
+                    onChange={handleMessageInputChange}
+                    placeholder="Type a message..."
+                  />
+                  <button onClick={handleSendMessage}>Send</button>
+                </div>
+                <div className="button-area">
+                  <button onClick={handleDraw}>Draw</button>
+                  <button onClick={handleAbort}>Abort</button>
+                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                    😀
+                  </button>
+                </div>
+              </div>
+              {showEmojiPicker && (
+                <div className="emoji-picker">
+                  <Picker
+                    reactionsDefaultOpen={true}
+                    onEmojiClick={onEmojiClick}
+                  />
+                </div>
               )}
             </div>
-            <div className="player-info player-white">
-              <div className="player-details-online">
-                <div className="player-name">
-                  <img
-                    src={myPicture}
-                    alt="My Profile"
-                    style={{
-                      height: "35px",
-                      width: "35px",
-                      borderRadius: "8px",
-                      marginRight: "16px",
-                    }}
-                  />
-                </div>
-                <div className="details-play">
-                  <div className="player-info-content">
-                    <h2 className="player-name-text">{myName}</h2>
-                    <p className="player-description">
-                      {capturedPieces.length === 0 ? (
-                        <span>No pieces have been captured yet.</span>
-                      ) : (
-                        capturedPieces.map((piece, index) => (
-                          <FontAwesomeIcon
-                            key={index}
-                            icon={pieceIcons[piece as keyof typeof pieceIcons]}
-                            color="white"
-                            className="captured-piece-icon"
-                          />
-                        ))
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="chat-container">
-            {myName && otherName && playerColor && (
-              <div className="chat-messages">
-                {chatMessages.map((msg, index) => (
-                  <div
-                    key={index}
-                    ref={chatMessagesEndRef}
-                    className="chat-message"
-                  >
-                    {msg}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="chat-input-container">
-              <input
-                type="text"
-                value={messageInput}
-                onChange={handleMessageInputChange}
-                placeholder="Type a message..."
-              />
-              <button onClick={handleSendMessage}>Send</button>
-            </div>
-            <div className="button-area">
-              <button onClick={handleDraw}>Draw</button>
-              <button onClick={handleAbort}>Abort</button>
-              <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-                😀
-              </button>
-            </div>
-          </div>
-          {showEmojiPicker && (
-            <div className="emoji-picker">
-              <Picker reactionsDefaultOpen={true} onEmojiClick={onEmojiClick} />
-            </div>
           )}
-        </div>
+        </>
       )}
     </>
   );

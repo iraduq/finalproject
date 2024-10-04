@@ -1,0 +1,22 @@
+@import url("https://fonts.googleapis.com/css?family=Niramit:300,300i,700");
+
+.vertical-timeline-element-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #cbc7bc;
+}
+
+.commit-history {
+  font-family: "Niramit", sans-serif;
+  color: #fff;
+  margin: 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.5;
+  font-weight: 500;
+  padding: 10px;
+}
+
+.wrapper-commits {
+  background-color: #111;
+}

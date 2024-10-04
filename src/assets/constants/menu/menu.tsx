@@ -1,90 +1,189 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Layout, Menu as AntMenu, ConfigProvider, Avatar } from "antd";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChess,
-  faBook,
-  faUser,
-  faEnvelope,
-  faInfoCircle,
-  faSignOutAlt,
-} from "@fortawesome/free-solid-svg-icons";
 import "./menu.css";
+import hoverSoundFile from "../sounds/selectSound.mp3";
+import bookIcon from "./book.png";
+import playIcon from "./play.png";
+import aboutUsIcon from "./aboutUs.png";
+import contactIcon from "./contact.png";
+import profileIcon from "./profile.png";
+import updateIcon from "./update.png";
+import logOutIcon from "./logOut.png";
+import CONFIG from "../../../config";
 
 const { Sider } = Layout;
 
 const Menu: React.FC = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    hoverSoundRef.current = new Audio(hoverSoundFile);
+    if (hoverSoundRef.current) {
+      hoverSoundRef.current.volume = 0.3;
+    }
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (hoverSoundRef.current) {
+      hoverSoundRef.current.play();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverSoundRef.current) {
+      hoverSoundRef.current.pause();
+      hoverSoundRef.current.currentTime = 0;
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  const iconStyle = {
-    color: "#555",
-    transition: "color 0.3s",
-    fontWeight: "300",
-  };
-
   const items = [
     {
       label: <span className="custom-menu-label">Play</span>,
       key: "play",
-      icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
+      icon: (
+        <img
+          src={playIcon}
+          alt="Play Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
       children: [
         {
           label: <span className="custom-menu-label">Online</span>,
           key: "play_online",
-          icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
+          icon: (
+            <img
+              src={playIcon}
+              alt="Play Online"
+              style={{ width: "25px", height: "25px" }}
+            />
+          ),
           onClick: () => navigate("/online"),
+          onMouseEnter: handleMouseEnter,
+          onMouseLeave: handleMouseLeave,
         },
         {
           label: <span className="custom-menu-label">Play vs Bot</span>,
           key: "play_bot",
-          icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
+          icon: (
+            <img
+              src={playIcon}
+              alt="Play vs Bot"
+              style={{ width: "25px", height: "25px" }}
+            />
+          ),
           onClick: () => navigate("/train"),
+          onMouseEnter: handleMouseEnter,
+          onMouseLeave: handleMouseLeave,
         },
         {
           label: <span className="custom-menu-label">Puzzle</span>,
           key: "puzzle",
-          icon: <FontAwesomeIcon icon={faChess} style={iconStyle} />,
+          icon: (
+            <img
+              src={playIcon}
+              alt="Play Puzzle"
+              style={{ width: "25px", height: "25px" }}
+            />
+          ),
           onClick: () => navigate("/puzzle"),
+          onMouseEnter: handleMouseEnter,
+          onMouseLeave: handleMouseLeave,
         },
       ],
     },
     {
       label: <span className="custom-menu-label">Learn</span>,
       key: "learn",
-      icon: <FontAwesomeIcon icon={faBook} style={iconStyle} />,
+      icon: (
+        <img
+          src={bookIcon}
+          alt="Book Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
       onClick: () => navigate("/tutorial"),
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
     },
     {
       label: <span className="custom-menu-label">Profile</span>,
       key: "profile",
-      icon: <FontAwesomeIcon icon={faUser} style={iconStyle} />,
+      icon: (
+        <img
+          src={profileIcon}
+          alt="Profile Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
       onClick: () => navigate("/profile"),
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
     },
     {
       label: <span className="custom-menu-label">Contact</span>,
       key: "contact",
-      icon: <FontAwesomeIcon icon={faEnvelope} style={iconStyle} />,
+      icon: (
+        <img
+          src={contactIcon}
+          alt="Contact Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
       onClick: () => navigate("/contact"),
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
     },
     {
       label: <span className="custom-menu-label">About us</span>,
       key: "about",
-      icon: <FontAwesomeIcon icon={faInfoCircle} style={iconStyle} />,
+      icon: (
+        <img
+          src={aboutUsIcon}
+          alt="About Us Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
       onClick: () => navigate("/about"),
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+    },
+    {
+      label: <span className="custom-menu-label">Update Log</span>,
+      key: "update",
+      icon: (
+        <img
+          src={updateIcon}
+          alt="Update Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
+      onClick: () => navigate("/update"),
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
     },
     {
       label: <span className="custom-menu-label">Log Out</span>,
       key: "logout",
-      icon: <FontAwesomeIcon icon={faSignOutAlt} style={iconStyle} />,
+      icon: (
+        <img
+          src={logOutIcon}
+          alt="Log Out Icon"
+          style={{ width: "25px", height: "25px" }}
+        />
+      ),
       onClick: handleLogout,
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
     },
   ];
 
@@ -118,7 +217,7 @@ const Menu: React.FC = () => {
       }
 
       try {
-        const response = await fetch("http://192.168.0.248:8000/profile/get", {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/profile/get`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -228,6 +327,8 @@ const Menu: React.FC = () => {
             )}
             <AntMenu
               mode="inline"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
               items={items}
               style={{
                 backgroundColor: "transparent",

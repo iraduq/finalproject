@@ -162,3 +162,9 @@
     margin-bottom: 5em;
   }
 }
+
+.group-password {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

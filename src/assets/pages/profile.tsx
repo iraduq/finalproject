@@ -33,17 +33,15 @@ import {
   TrophyOutlined,
   StepForwardOutlined,
   SmileOutlined,
-  LikeOutlined,
   FrownOutlined,
-  DislikeOutlined,
-  UpOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 import "./profile.css";
 import { Menu } from "antd";
 import Background from "../constants/background/background";
 import { UploadChangeParam } from "antd/es/upload";
 import CONFIG from "../../config";
+import ScaleLoader from "react-spinners/ScaleLoader";
+import { Switch } from "antd";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -168,6 +166,12 @@ const SideNav: React.FC<{ refs: RefsType }> = ({ refs }) => {
       key: "9",
       icon: <TableOutlined />,
       label: "Match History",
+      onClick: () => scrollToRef(refs.matchHistoryRef),
+    },
+    {
+      key: "10",
+      icon: <Switch />,
+      label: "Two Factor Auth",
       onClick: () => scrollToRef(refs.matchHistoryRef),
     },
   ];
@@ -297,54 +301,6 @@ const ChessStatistics = () => (
           value={1234}
           prefix={<FrownOutlined style={{ color: "red" }} />}
           valueStyle={{ color: "red" }}
-        />
-      </Col>
-      <Col xs={24} sm={12} md={8} lg={6}>
-        <Statistic
-          title={
-            <span style={{ color: "white", fontFamily: "Poppins" }}>
-              Highest Rating
-            </span>
-          }
-          value={2456}
-          prefix={<LikeOutlined style={{ color: "green" }} />}
-          valueStyle={{ color: "green" }}
-        />
-      </Col>
-      <Col xs={24} sm={12} md={8} lg={6}>
-        <Statistic
-          title={
-            <span style={{ color: "white", fontFamily: "Poppins" }}>
-              Lowest Rating
-            </span>
-          }
-          value={1800}
-          prefix={<DislikeOutlined style={{ color: "red" }} />}
-          valueStyle={{ color: "red" }}
-        />
-      </Col>
-      <Col xs={24} sm={12} md={8} lg={6}>
-        <Statistic
-          title={
-            <span style={{ color: "white", fontFamily: "Poppins" }}>
-              Average Time per Move
-            </span>
-          }
-          value={"2m 45s"}
-          prefix={<ClockCircleOutlined style={{ color: "blue" }} />}
-          valueStyle={{ color: "blue" }}
-        />
-      </Col>
-      <Col xs={24} sm={12} md={8} lg={6}>
-        <Statistic
-          title={
-            <span style={{ color: "white", fontFamily: "Poppins" }}>
-              Win Rate
-            </span>
-          }
-          value={"67%"}
-          prefix={<UpOutlined style={{ color: "purple" }} />}
-          valueStyle={{ color: "purple" }}
         />
       </Col>
     </Row>
@@ -540,15 +496,20 @@ const Profile: React.FC = () => {
   };
 
   if (!profileLoaded) {
-    return <div>Loading...</div>;
+    return (
+      <div className="waiting-message">
+        <ScaleLoader loading={!profileLoaded} color="#999" />
+        <p>Fetching profile data...</p>
+      </div>
+    );
   }
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: "#222",
-          colorBgContainer: "rgba(0, 0, 0, 0)",
+          colorPrimary: "#333",
+          colorBgContainer: "#333",
         },
       }}
     >
